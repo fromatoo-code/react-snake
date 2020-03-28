@@ -7,7 +7,7 @@ const GRID_WIDTH = 500
 const GRID_HEIGHT = 500
 const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
 const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
-const TICK = 500;
+const TICK = 250;
 const HEAD_ROUNDNESS = '70px';
 
 //conrols
@@ -123,8 +123,8 @@ const GridItem = styled.div`
   line-height: ${GRID_ITEM_HEIGHT}px;
   font-size: ${GRID_ITEM_HEIGHT * 0.7}px;
   ${props => props.gamelost && 'background-color: yellow;'}
-  ${props => props.snakehead && 'background-color: black;'}
-  ${props => props.snaketail && 'background-color: blue;'}
+  ${props => props.snakehead && 'background-color: darkcyan;'}
+  ${props => props.snaketail && 'background-color: lightseagreen;'}
   ${props => props.victory && 'background-color: green;'}
   ${props => props.snakehead && getDirection()}
 `;
