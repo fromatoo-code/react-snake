@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-const ROWS = 4;
-const COLUMNS = 4;
+const ROWS = 10;
+const COLUMNS = 10;
 const GRID_WIDTH = 500
 const GRID_HEIGHT = 500
 const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
 const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
-const TICK = 500;
+const TICK = 250;
 const HEAD_ROUNDNESS = '70px';
 
 //conrols
@@ -340,7 +340,7 @@ const Snake = () => {
             snaketail={item.isSnakeTail}
             victory={SNAKE_TAIL.length + 1 === COLUMNS * ROWS}
           >
-            {item.isFood && PRAY}
+            {item.isFood && (SNAKE_TAIL.length + 1 === COLUMNS * ROWS ? '🎉' : PRAY)}
           </GridItem>)}
       </Grid>
     </Container>
