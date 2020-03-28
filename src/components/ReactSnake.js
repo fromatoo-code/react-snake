@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-const ROWS = 10;
-const COLUMNS = 10;
+const ROWS = 4;
+const COLUMNS = 4;
 const GRID_WIDTH = 500
 const GRID_HEIGHT = 500
 const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
 const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
-const TICK = 250;
+const TICK = 500;
 const HEAD_ROUNDNESS = '70px';
 
 //conrols
@@ -87,7 +87,9 @@ const getCenterOfGrid = () => ({
 
 const getStartFood = () => {
   let startFoodPosition = getRandomGrid();
-  while (startFoodPosition === getCenterOfGrid()) startFoodPosition = getRandomGrid();
+  if (startFoodPosition.col === getCenterOfGrid().col && startFoodPosition.row === getCenterOfGrid().row) {
+    return getStartFood();
+  };
   return startFoodPosition;
 }
 
@@ -98,8 +100,8 @@ let SNAKE_TAIL = [];
 let SCORE = 0;
 
 const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 100px);
   display: flex;
   align-items: center;
   justify-content: center;
