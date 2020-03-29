@@ -1,3 +1,5 @@
+// inspired by https://medium.com/swlh/how-i-created-a-snake-game-in-react-7743fc599084
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -174,6 +176,14 @@ const Snake = () => {
     changeGameLost(true);
   }
 
+  const reset = () => {
+    DIRECTION = RIGHT;
+    SNAKE_TAIL = [];
+    FOOD_POSITION = getStartFood();
+    SCORE = 0;
+    updateSnakeHead(getCenterOfGrid());
+  }
+
   // controls
   const handleKeys = (keyPress) => {
     const { key } = keyPress;
@@ -226,7 +236,12 @@ const Snake = () => {
     // start listening to controlis
     window.addEventListener('keydown', handleKeys, { passive: false });
 
-    return () => window.removeEventListener(handleKeys);
+    return () => {
+      window.removeEventListener('keydown', handleKeys);
+      // cancels ticer
+      runningRef.current = false;
+      reset();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -235,7 +250,7 @@ const Snake = () => {
     // handle snake movements
     const moveSnake = () => {
       let oldPos;
-      let newPos;
+      let newPos = {};
       updateSnakeHead((prevPos) => {
         oldPos = prevPos;
         switch (DIRECTION) {
@@ -298,7 +313,9 @@ const Snake = () => {
     };
 
     if (gameRunning) setTimeout(gameTick, TICK);
-    return () =>  clearTimeout(gameTick);
+    return () => {
+      clearTimeout(gameTick);
+    };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameRunning])
@@ -313,11 +330,7 @@ const Snake = () => {
   const handleClick = () => {
     // reset all values on game end
     if (gameLost) {
-      DIRECTION = RIGHT;
-      SNAKE_TAIL = [];
-      FOOD_POSITION = getStartFood();
-      SCORE = 0;
-      updateSnakeHead(getCenterOfGrid());
+      reset();
       changeGameLost(false);
     };
     changeGameRunning(!gameRunning);
