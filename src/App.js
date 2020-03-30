@@ -5,7 +5,7 @@ import ReactSnake from './components/ReactSnake';
 import CanvasSnake from './components/CanvasSnake';
 
 function App() {
-  const [flexSnake, changeSnake] = useState(false);
+  const [flexSnake, changeSnake] = useState(true);
   return (
     <div className="App">
       <GithubCorner href="https://github.com/askokr/react-snake" />
