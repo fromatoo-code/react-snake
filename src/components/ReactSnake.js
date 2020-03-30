@@ -3,6 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { UP, RIGHT, DOWN, LEFT, animals } from '../utils/variables';
+import { getNewDirection } from '../utils/functions';
+
 const ROWS = 10;
 const COLUMNS = 10;
 const GRID_WIDTH = 500
@@ -11,48 +14,6 @@ const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
 const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
 const TICK = 250;
 const HEAD_ROUNDNESS = '70px';
-
-//conrols
-const RIGHT = 'right';
-const LEFT = 'left';
-const UP = 'up';
-const DOWN = 'down';
-
-const animals = [
-  '🐶',
-  '🐺',
-  '🦊',
-  '🐱',
-  '🐯',
-  '🐵',
-  '🐷',
-  '🐴',
-  '🐗',
-  '🐼',
-  '🐨',
-  '🐮',
-  '🐻',
-  '🐰',
-  '🐹',
-  '🐭',
-  '🐓',
-  '🦃',
-  '🐦',
-  '🦅',
-  '🦉',
-  '🦆',
-  '🐧',
-  '🐢',
-  '🐙',
-  '🦀',
-  '🦐',
-  '🐋',
-  '🐟',
-  '🐠',
-  '🐡',
-  '🦈',
-  '🐬',
-];
 
 const getAnimal = () => animals[Math.floor(Math.random() * (animals.length - 1))];
 
@@ -118,6 +79,7 @@ const Grid = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   outline: 3px solid grey;
+  background-color: lightgoldenrodyellow;
 `;
 
 const GridItem = styled.div`
@@ -187,27 +149,7 @@ const Snake = () => {
   // controls
   const handleKeys = (keyPress) => {
     const { key } = keyPress;
-    let newDirection;
-    switch (key) {
-      case 'ArrowUp':
-      case 'w':
-        newDirection = UP;
-        break;
-      case 'ArrowDown':
-      case 's':
-        newDirection = DOWN;
-        break;
-      case 'ArrowLeft':
-      case 'a':
-        newDirection = LEFT;
-        break;
-      case 'ArrowRight':
-      case 'd':
-        newDirection = RIGHT;
-        break;
-      default:
-        break;
-    }
+    const newDirection = getNewDirection(key);
     if (checkNoReverse(newDirection, DIRECTION, SNAKE_TAIL.length)) loseGame();
     DIRECTION = newDirection;
   }

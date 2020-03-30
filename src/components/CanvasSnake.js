@@ -1,7 +1,10 @@
-// inspired by https://www.instructables.com/id/How-to-Make-a-Snake-Game-in-JavaScript/
+// inspired by https://www.html5canvastutorials.com/advanced/html5-canvas-snake-game/
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+
+import { getNewDirection } from '../utils/functions';
+import { UP, RIGHT, DOWN, LEFT } from '../utils/variables';
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -9,18 +12,14 @@ const PIXELS_X = 10;
 const PIXELS_Y = 10;
 const PIXEL_WIDTH = WIDTH / PIXELS_X;
 const PIXEL_HEIGHT = HEIGHT / PIXELS_Y;
+const SCREEN_SIZE = PIXELS_X * PIXELS_Y;
 
 const TICK = 300;
-const SCORE = 0;
-
-//conrols
-const RIGHT = 'right';
-const LEFT = 'left';
-const UP = 'up';
-const DOWN = 'down';
+let SCORE = 0;
 
 // startic vars
 let DIRECTION = RIGHT;
+let FOODPOSITION;
 
 const Container = styled.div`
   width: 100%;
@@ -32,6 +31,7 @@ const Container = styled.div`
 `;
 
 const Canvas = styled.canvas`
+  background-color: lightgoldenrodyellow;
   outline: 3px solid gray;
 `;
 
@@ -53,27 +53,7 @@ const Score = styled.div`
 // controls
 const handleKeys = (keyPress) => {
   const { key } = keyPress;
-  let newDirection = DIRECTION;
-  switch (key) {
-    case 'ArrowUp':
-    case 'w':
-      newDirection = UP;
-      break;
-    case 'ArrowDown':
-    case 's':
-      newDirection = DOWN;
-      break;
-    case 'ArrowLeft':
-    case 'a':
-      newDirection = LEFT;
-      break;
-    case 'ArrowRight':
-    case 'd':
-      newDirection = RIGHT;
-      break;
-    default:
-      break;
-  }
+  const newDirection = getNewDirection(key);
   DIRECTION = newDirection;
 }
 
@@ -81,6 +61,23 @@ const getCenterSquare = () => ({
   x: Math.floor((PIXELS_X - 1) / 2) * PIXEL_WIDTH,
   y: Math.floor((PIXELS_Y - 1) / 2) * PIXEL_HEIGHT,
 })
+
+const getRandomPosition = () => ({
+  x: (Math.floor(Math.random() * PIXELS_X) * PIXEL_WIDTH),
+  y: (Math.floor(Math.random() * PIXELS_Y) * PIXEL_HEIGHT),
+})
+
+const checkTailIntersection = (block, tail) => (
+  tail.findIndex(segment => segment.x === block.x && segment.y === block.y) !== -1);
+
+const setFoodPosition = (snake) => {
+  const newFoodPosition = getRandomPosition();
+  const takenPositons = snake;
+  if (FOODPOSITION) takenPositons.push(FOODPOSITION);
+  console.log(snake.length);
+  if (checkTailIntersection(newFoodPosition, takenPositons) && snake.length !== SCREEN_SIZE) return setFoodPosition(snake);
+  return newFoodPosition;
+}
 
 const Snake = () => {
   const [gameCanvas, setCanvas] = useState(null);
@@ -93,12 +90,12 @@ const Snake = () => {
   const scoreRef = useRef(SCORE);
   scoreRef.current = SCORE;
 
-
   useEffect(() => {
     // get canvas
     setCanvas(document.getElementById("snakeCanvas"));
     // add controls listener
     window.addEventListener('keydown', handleKeys, { passive: false });
+    FOODPOSITION = setFoodPosition(snakeRef.current);
     return () => {
       window.removeEventListener('keydown', handleKeys);
       runningRef.current = false;
@@ -124,25 +121,42 @@ const Snake = () => {
         snakeRef.current.forEach(drawSnakePart);
       }
 
+      const drawFood = () => {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
+        ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
+      }
+
       const moveSnake = () => {
+        const oldSnake = snakeRef.current;
+        const newSnake = [];
+        const oldSnakeHead = oldSnake[0];
         let newSnakeHead;
-        updateSnake((prevSnake) => {
-          const snakeHead = prevSnake[0];
-          switch (DIRECTION) {
-            case LEFT:
-              newSnakeHead = { ...snakeHead, x: snakeHead.x - PIXEL_WIDTH };
-              break;
-            case UP:
-              newSnakeHead = { ...snakeHead, y: snakeHead.y - PIXEL_HEIGHT };
-              break;
-            case DOWN:
-              newSnakeHead = { ...snakeHead, y: snakeHead.y + PIXEL_HEIGHT };
-              break;
-            default:
-              newSnakeHead = { ...snakeHead, x: snakeHead.x + PIXEL_WIDTH };
-          }
-          return [newSnakeHead];
-        });
+        switch (DIRECTION) {
+          case LEFT:
+            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x - PIXEL_WIDTH };
+            break;
+          case UP:
+            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y - PIXEL_HEIGHT };
+            break;
+          case DOWN:
+            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y + PIXEL_HEIGHT };
+            break;
+          default:
+            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x + PIXEL_WIDTH };
+        }
+        newSnake.push(newSnakeHead)
+
+        if (oldSnake.length > 1) for (let i = 1; i < oldSnake.length; i += 1) newSnake.push(oldSnake[(i - 1)]);
+
+        const snakeEats = newSnakeHead.x === FOODPOSITION.x && newSnakeHead.y === FOODPOSITION.y;
+        if (snakeEats) {
+          console.log('snake eats');
+          newSnake.push(oldSnake[oldSnake.length - 1]);
+          FOODPOSITION = setFoodPosition(oldSnake);
+          SCORE += 1;
+        }
+        updateSnake(newSnake);
       }
 
       // game tick
@@ -150,12 +164,14 @@ const Snake = () => {
         if (runningRef.current) {
           ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
           moveSnake();
+          drawFood();
           drawSnake();
           setTimeout(gameTick , TICK);
         }
       };
 
       drawSnake();
+      drawFood();
 
       if (gameRunning) setTimeout(gameTick, TICK);
       return () => clearTimeout(gameTick);
