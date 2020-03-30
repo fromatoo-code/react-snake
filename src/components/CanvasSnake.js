@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { Button, Container, Controls, Score } from './SharedComponents';
 import { getNewDirection } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT } from '../utils/variables';
 
@@ -14,40 +15,19 @@ const PIXEL_WIDTH = WIDTH / PIXELS_X;
 const PIXEL_HEIGHT = HEIGHT / PIXELS_Y;
 const SCREEN_SIzE = PIXELS_X * PIXELS_Y;
 
-const TICK = 300;
+const TICK = 250;
 let SCORE = 0;
 
 // startic vars
 let DIRECTION = RIGHT;
 let FOODPOSITION;
 
-const Container = styled.div`
-  width: 100%;
-  height: calc(100vh - 200px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-
 const Canvas = styled.canvas`
   background-color: lightgoldenrodyellow;
   outline: 3px solid gray;
-`;
-
-const Controls = styled.div`
+  width: ${WIDTH};
+  height: ${HEIGHT};
   margin: auto;
-`;
-
-const Button = styled.button`
-  font-family: 'Nova Slim', cursive;
-  font-size: 25px;
-`;
-
-const Score = styled.div`
-  font-family: 'Nova Slim', cursive;
-  font-size: 52px;
-  text-align: center;
 `;
 
 // controls
@@ -85,10 +65,11 @@ const Snake = () => {
   const [gameLost, changeGameLost] = useState(false);
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
-  const snakeRef = useRef(snake);
-  snakeRef.current = snake;
   const scoreRef = useRef(SCORE);
   scoreRef.current = SCORE;
+  const snakeRef = useRef(snake);
+  // there is some strange bug, where a random position is added to the snake in the beginning of the game
+  snakeRef.current = scoreRef.current === 0 ? [snake[0]] : snake;
   const gameLostRef = useRef(gameLost);
   gameLostRef.current = gameLost;
 
@@ -100,13 +81,13 @@ const Snake = () => {
   const reset = () => {
     DIRECTION = RIGHT;
     SCORE = 0;
-    const resetSnake = [getCenterSquare()];
+    let resetSnake = [getCenterSquare()];
     FOODPOSITION = setFoodPosition(resetSnake);
     if (gameCanvas) {
       const ctx = gameCanvas.getContext("2d");
       ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
     }
-    updateSnake(resetSnake);
+    updateSnake([resetSnake[0]]);
     changeGameLost(false);
   }
 
@@ -215,7 +196,6 @@ const Snake = () => {
 
       if (gameRunning) setTimeout(gameTick, TICK);
       return () => clearTimeout(gameTick);
-
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameCanvas, gameRunning]);

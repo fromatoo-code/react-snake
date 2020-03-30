@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { Button, Container, Controls, Score } from './SharedComponents';
 import { UP, RIGHT, DOWN, LEFT, animals } from '../utils/variables';
 import { getNewDirection } from '../utils/functions';
 
@@ -62,15 +63,6 @@ let PRAY = getAnimal();
 let SNAKE_TAIL = [];
 let SCORE = 0;
 
-const Container = styled.div`
-  width: 100%;
-  height: calc(100vh - 100px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-
 const Grid = styled.div`
   width: ${GRID_WIDTH}px;
   height: ${GRID_WIDTH}px;
@@ -93,21 +85,6 @@ const GridItem = styled.div`
   ${props => props.snaketail && 'background-color: lightseagreen;'}
   ${props => props.victory && 'background-color: green;'}
   ${props => props.snakehead && getDirection()}
-`;
-
-const Controls = styled.div`
-  margin: auto;
-`;
-
-const Button = styled.button`
-  font-family: 'Nova Slim', cursive;
-  font-size: 25px;
-`;
-
-const Score = styled.div`
-  font-family: 'Nova Slim', cursive;
-  font-size: 52px;
-  text-align: center;
 `;
 
 const checkNoReverse = (newDir, oldDir, length) => {
