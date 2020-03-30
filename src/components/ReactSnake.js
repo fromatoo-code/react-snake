@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Container, Controls, Score } from './SharedComponents';
-import { UP, RIGHT, DOWN, LEFT, animals } from '../utils/variables';
 import { getNewDirection } from '../utils/functions';
+import { UP, RIGHT, DOWN, LEFT, animals, COLOURS } from '../utils/variables';
 
 const ROWS = 10;
 const COLUMNS = 10;
@@ -71,7 +71,9 @@ const Grid = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   outline: 3px solid grey;
-  background-color: lightgoldenrodyellow;
+  background-color: ${COLOURS.background};
+  ${props => props.gamelost && `background-color: ${COLOURS.backgroundLoss};`}
+  ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
 `;
 
 const GridItem = styled.div`
@@ -80,10 +82,9 @@ const GridItem = styled.div`
   text-align: center;
   line-height: ${GRID_ITEM_HEIGHT}px;
   font-size: ${GRID_ITEM_HEIGHT * 0.7}px;
-  ${props => props.gamelost && 'background-color: yellow;'}
-  ${props => props.snakehead && 'background-color: darkcyan;'}
-  ${props => props.snaketail && 'background-color: lightseagreen;'}
-  ${props => props.victory && 'background-color: green;'}
+  ${props => props.snakehead && `background-color: ${COLOURS.snakeHead};`}
+  ${props => props.snaketail && `background-color: ${COLOURS.snakeTail};`}
+  ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
   ${props => props.snakehead && getDirection()}
 `;
 
@@ -263,10 +264,12 @@ const Snake = () => {
         </Button>
         <Score>{scoreRef.current}</Score>
       </Controls>
-      <Grid>
+      <Grid
+        gamelost={gameLost}
+        victory={SNAKE_TAIL.length + 1 === COLUMNS * ROWS}
+      >
         {grid.map(item =>
           <GridItem
-            gamelost={gameLost}
             key={item.row.toString() + '-' + item.col.toString()}
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}

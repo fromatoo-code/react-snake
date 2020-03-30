@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, Score } from './SharedComponents';
 import { getNewDirection } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, COLOURS } from '../utils/variables';
 
 const WIDTH = 500;
 const HEIGHT = 500;
@@ -23,7 +23,7 @@ let DIRECTION = RIGHT;
 let FOODPOSITION;
 
 const Canvas = styled.canvas`
-  background-color: lightgoldenrodyellow;
+  background-color: ${COLOURS.background};
   outline: 3px solid gray;
   width: ${WIDTH};
   height: ${HEIGHT};
@@ -115,7 +115,7 @@ const Snake = () => {
       ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
 
       const drawSnakePart = (snakePart, isHead) => {
-        ctx.fillStyle = isHead ? 'darkcyan' : 'lightseagreen';
+        ctx.fillStyle = isHead ? COLOURS.snakeHead : COLOURS.snakeTail;
         ctx.fillRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
         ctx.strokeRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
       }
@@ -128,7 +128,7 @@ const Snake = () => {
       }
 
       const drawFood = () => {
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = COLOURS.food;
         ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
         ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
       }
