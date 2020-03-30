@@ -9,11 +9,10 @@ function App() {
   return (
     <div className="App">
       <GithubCorner href="https://github.com/askokr/react-snake" />
-      <ReactSnake />
-      {/* <button onClick={() => changeSnake(!flexSnake)}>Change Snake</button>
+      <button onClick={() => changeSnake(!flexSnake)}>Change Snake</button>
       {flexSnake
       ? <ReactSnake />
-      : <CanvasSnake />} */}
+      : <CanvasSnake />}
 
     </div>
   );

@@ -12,7 +12,7 @@ const PIXELS_X = 10;
 const PIXELS_Y = 10;
 const PIXEL_WIDTH = WIDTH / PIXELS_X;
 const PIXEL_HEIGHT = HEIGHT / PIXELS_Y;
-const SCREEN_SIZE = PIXELS_X * PIXELS_Y;
+const SCREEN_SIzE = PIXELS_X * PIXELS_Y;
 
 const TICK = 300;
 let SCORE = 0;
@@ -74,8 +74,7 @@ const setFoodPosition = (snake) => {
   const newFoodPosition = getRandomPosition();
   const takenPositons = snake;
   if (FOODPOSITION) takenPositons.push(FOODPOSITION);
-  console.log(snake.length);
-  if (checkTailIntersection(newFoodPosition, takenPositons) && snake.length !== SCREEN_SIZE) return setFoodPosition(snake);
+  if (checkTailIntersection(newFoodPosition, takenPositons)) return setFoodPosition(snake);
   return newFoodPosition;
 }
 
@@ -83,12 +82,33 @@ const Snake = () => {
   const [gameCanvas, setCanvas] = useState(null);
   const [snake, updateSnake] = useState([getCenterSquare()]);
   const [gameRunning, changeGameRunning] = useState(false);
+  const [gameLost, changeGameLost] = useState(false);
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
   const snakeRef = useRef(snake);
   snakeRef.current = snake;
   const scoreRef = useRef(SCORE);
   scoreRef.current = SCORE;
+  const gameLostRef = useRef(gameLost);
+  gameLostRef.current = gameLost;
+
+  const loseGame = () => {
+    changeGameRunning(false);
+    changeGameLost(true);
+  }
+
+  const reset = () => {
+    DIRECTION = RIGHT;
+    SCORE = 0;
+    const resetSnake = [getCenterSquare()];
+    FOODPOSITION = setFoodPosition(resetSnake);
+    if (gameCanvas) {
+      const ctx = gameCanvas.getContext("2d");
+      ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    }
+    updateSnake(resetSnake);
+    changeGameLost(false);
+  }
 
   useEffect(() => {
     // get canvas
@@ -99,7 +119,9 @@ const Snake = () => {
     return () => {
       window.removeEventListener('keydown', handleKeys);
       runningRef.current = false;
+      reset();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -111,20 +133,33 @@ const Snake = () => {
       // Draw a "border" around the entire canvas
       ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-      const drawSnakePart = (snakePart) => {
-        ctx.fillStyle = 'black';
+      const drawSnakePart = (snakePart, isHead) => {
+        ctx.fillStyle = isHead ? 'darkcyan' : 'lightseagreen';
         ctx.fillRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
         ctx.strokeRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
       }
 
       const drawSnake = () => {
-        snakeRef.current.forEach(drawSnakePart);
+        const { current } = snakeRef;
+        for (let i = 0; i < current.length; i += 1) {
+          drawSnakePart(current[i], i === 0);
+        }
       }
 
       const drawFood = () => {
         ctx.fillStyle = 'red';
         ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
         ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
+      }
+
+      const drawLossBackGround = () => {
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+      }
+
+      const drawVictoryGround = () => {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
       }
 
       const moveSnake = () => {
@@ -151,12 +186,16 @@ const Snake = () => {
 
         const snakeEats = newSnakeHead.x === FOODPOSITION.x && newSnakeHead.y === FOODPOSITION.y;
         if (snakeEats) {
-          console.log('snake eats');
           newSnake.push(oldSnake[oldSnake.length - 1]);
-          FOODPOSITION = setFoodPosition(oldSnake);
+          if (newSnake.length !== SCREEN_SIzE ) FOODPOSITION = setFoodPosition(oldSnake);
           SCORE += 1;
         }
         updateSnake(newSnake);
+        const isOutOfBounds = () => (newSnakeHead.x >= WIDTH
+          || newSnakeHead.x < 0
+          || newSnakeHead.y >= HEIGHT
+          || newSnakeHead.y < 0);
+        if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1))) loseGame();
       }
 
       // game tick
@@ -164,12 +203,13 @@ const Snake = () => {
         if (runningRef.current) {
           ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
           moveSnake();
+          if (gameLostRef.current) drawLossBackGround();
           drawFood();
           drawSnake();
+          if (snakeRef.current.length === SCREEN_SIzE) drawVictoryGround();
           setTimeout(gameTick , TICK);
         }
       };
-
       drawSnake();
       drawFood();
 
@@ -181,6 +221,7 @@ const Snake = () => {
   }, [gameCanvas, gameRunning]);
 
   const handleClick = () => {
+    if (gameLostRef.current) reset();
     changeGameRunning(!gameRunning);
   };
 
