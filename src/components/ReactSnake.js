@@ -15,6 +15,10 @@ const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
 const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
 const TICK = 250;
 const HEAD_ROUNDNESS = '70px';
+const GRID_WIDTH_MOBILE = 90
+const GRID_HEIGHT_MOBILE = 90
+const GRID_ITEM_WIDTH_MOBILE = GRID_WIDTH_MOBILE / ROWS;
+const GRID_ITEM_HEIGHT_MOBILE = GRID_HEIGHT_MOBILE / COLUMNS;
 
 const getAnimal = () => animals[Math.floor(Math.random() * (animals.length - 1))];
 
@@ -64,8 +68,8 @@ let SNAKE_TAIL = [];
 let SCORE = 0;
 
 const Grid = styled.div`
-  width: ${GRID_WIDTH}px;
-  height: ${GRID_WIDTH}px;
+  width: ${GRID_HEIGHT}px;
+  height: ${GRID_HEIGHT}px;
   margin: auto;
   display: flex;
   flex-direction: row;
@@ -74,6 +78,11 @@ const Grid = styled.div`
   background-color: ${COLOURS.background};
   ${props => props.gamelost && `background-color: ${COLOURS.backgroundLoss};`}
   ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
+
+  @media (max-width: 768px) {
+    width: ${GRID_HEIGHT_MOBILE}vw;
+    height: ${GRID_HEIGHT_MOBILE}vw;
+  }
 `;
 
 const GridItem = styled.div`
@@ -85,7 +94,35 @@ const GridItem = styled.div`
   ${props => props.snakehead && `background-color: ${COLOURS.snakeHead};`}
   ${props => props.snaketail && `background-color: ${COLOURS.snakeTail};`}
   ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
-  ${props => props.snakehead && getDirection()}
+  ${props => props.snakehead && getDirection()};
+
+  @media (max-width: 768px) {
+    width: ${GRID_ITEM_WIDTH_MOBILE}vw;
+    height: ${GRID_ITEM_HEIGHT_MOBILE}vw;
+    line-height: ${GRID_ITEM_HEIGHT_MOBILE}vw;
+    font-size: ${GRID_ITEM_HEIGHT_MOBILE * 0.7}vw;
+  }
+`;
+
+const MobileControls = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 90vw;
+  justify-content: ${props => (props.spaced ? 'space-between' : 'center')};
+`;
+
+const ControlButon = styled.button`
+  padding: 10px 30px;
 `;
 
 const checkNoReverse = (newDir, oldDir, length) => {
@@ -130,6 +167,10 @@ const Snake = () => {
     const newDirection = getNewDirection(key);
     if (checkNoReverse(newDirection, DIRECTION, SNAKE_TAIL.length)) loseGame();
     DIRECTION = newDirection;
+  }
+
+  const mobileConroller = (dir) => {
+    DIRECTION = dir;
   }
 
   // handle grid data updates
@@ -278,6 +319,18 @@ const Snake = () => {
             {item.isFood && (SNAKE_TAIL.length + 1 === COLUMNS * ROWS ? '🎉' : PRAY)}
           </GridItem>)}
       </Grid>
+      <MobileControls>
+        <Row>
+          <ControlButon onClick={() => mobileConroller(UP)}>⬆</ControlButon>
+        </Row>
+        <Row spaced>
+          <ControlButon onClick={() => mobileConroller(LEFT)}>⬅</ControlButon>
+          <ControlButon onClick={() => mobileConroller(RIGHT)}>➡</ControlButon>
+        </Row>
+        <Row>
+          <ControlButon onClick={() => mobileConroller(DOWN)}>⬇</ControlButon>
+        </Row>
+      </MobileControls>
     </Container>
   );
 }
