@@ -7,18 +7,7 @@ import { Button, Container, Controls, Score } from './SharedComponents';
 import { getNewDirection } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, animals, COLOURS } from '../utils/variables';
 
-const ROWS = 10;
-const COLUMNS = 10;
-const GRID_WIDTH = 500
-const GRID_HEIGHT = 500
-const GRID_ITEM_WIDTH = GRID_WIDTH / ROWS;
-const GRID_ITEM_HEIGHT = GRID_HEIGHT / COLUMNS;
-const TICK = 250;
 const HEAD_ROUNDNESS = '70px';
-const GRID_WIDTH_MOBILE = 90
-const GRID_HEIGHT_MOBILE = 90
-const GRID_ITEM_WIDTH_MOBILE = GRID_WIDTH_MOBILE / ROWS;
-const GRID_ITEM_HEIGHT_MOBILE = GRID_HEIGHT_MOBILE / COLUMNS;
 
 const getAnimal = () => animals[Math.floor(Math.random() * (animals.length - 1))];
 
@@ -41,35 +30,34 @@ const getDirection = () => {
   return borderRadius;
 }
 
-const getRandomGrid = () => {
+const getRandomGrid = (gridSize) => {
   return {
-    row: Math.floor(Math.random() * ROWS),
-    col: Math.floor(Math.random() * COLUMNS),
+    row: Math.floor(Math.random() * gridSize),
+    col: Math.floor(Math.random() * gridSize),
   }
 }
 
-const getCenterOfGrid = () => ({
-  row: Math.floor((ROWS - 1) / 2),
-  col: Math.floor((COLUMNS - 1) / 2),
+const getCenterOfGrid = (gridSize) => ({
+  row: Math.floor((gridSize - 1) / 2),
+  col: Math.floor((gridSize - 1) / 2),
 })
 
-const getStartFood = () => {
-  let startFoodPosition = getRandomGrid();
-  if (startFoodPosition.col === getCenterOfGrid().col && startFoodPosition.row === getCenterOfGrid().row) {
-    return getStartFood();
+const getStartFood = (gridSize) => {
+  let startFoodPosition = getRandomGrid(gridSize);
+  if (startFoodPosition.col === getCenterOfGrid().col && startFoodPosition.row === getCenterOfGrid(gridSize).row) {
+    return getStartFood(gridSize);
   };
   return startFoodPosition;
 }
 
 let DIRECTION = RIGHT;
-let FOOD_POSITION = getStartFood();
+let FOOD_POSITION = {};
 let PRAY = getAnimal();
 let SNAKE_TAIL = [];
-let SCORE = 0;
 
 const Grid = styled.div`
-  width: ${GRID_HEIGHT}px;
-  height: ${GRID_HEIGHT}px;
+  width: ${props => props.gridSide};
+  height: ${props => props.gridSide};
   margin: auto;
   display: flex;
   flex-direction: row;
@@ -78,30 +66,18 @@ const Grid = styled.div`
   background-color: ${COLOURS.background};
   ${props => props.gamelost && `background-color: ${COLOURS.backgroundLoss};`}
   ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
-
-  @media (max-width: 768px) {
-    width: ${GRID_HEIGHT_MOBILE}vw;
-    height: ${GRID_HEIGHT_MOBILE}vw;
-  }
 `;
 
 const GridItem = styled.div`
-  width: ${GRID_ITEM_WIDTH}px;
-  height: ${GRID_ITEM_HEIGHT}px;
+  width: ${props => props.gridItemSide};
+  height: ${props => props.gridItemSide};
   text-align: center;
-  line-height: ${GRID_ITEM_HEIGHT}px;
-  font-size: ${GRID_ITEM_HEIGHT * 0.7}px;
+  line-height: ${props => props.gridItemSide};
+  font-size: ${props => `calc(${props.gridItemSide} * 0.7)`};
   ${props => props.snakehead && `background-color: ${COLOURS.snakeHead};`}
   ${props => props.snaketail && `background-color: ${COLOURS.snakeTail};`}
   ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
   ${props => props.snakehead && getDirection()};
-
-  @media (max-width: 768px) {
-    width: ${GRID_ITEM_WIDTH_MOBILE}vw;
-    height: ${GRID_ITEM_HEIGHT_MOBILE}vw;
-    line-height: ${GRID_ITEM_HEIGHT_MOBILE}vw;
-    font-size: ${GRID_ITEM_HEIGHT_MOBILE * 0.7}vw;
-  }
 `;
 
 const MobileControls = styled.div`
@@ -136,17 +112,15 @@ const checkNoReverse = (newDir, oldDir, length) => {
 const checkTailIntersection = (block, tail) => (
   tail.findIndex(segment => segment.col === block.col && segment.row === block.row) !== -1);
 
-const Snake = () => {
+const Snake = ({ gridItemSide, gridSide, gridSize, tick }) => {
   // keep track of grid and snake head
   const [grid, updateGrid] = useState([]);
-  const [snakeHead, updateSnakeHead] = useState(getCenterOfGrid());
+  const [snakeHead, updateSnakeHead] = useState(getCenterOfGrid(gridSize));
   const [gameRunning, changeGameRunning] = useState(false);
   const [gameLost, changeGameLost] = useState(false);
   // refs used to keep track of vars and update values within setTimeout
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
-  const scoreRef = useRef(SCORE);
-  scoreRef.current = SCORE;
 
   const loseGame = () => {
     changeGameRunning(false);
@@ -156,9 +130,8 @@ const Snake = () => {
   const reset = () => {
     DIRECTION = RIGHT;
     SNAKE_TAIL = [];
-    FOOD_POSITION = getStartFood();
-    SCORE = 0;
-    updateSnakeHead(getCenterOfGrid());
+    FOOD_POSITION = getStartFood(gridSize);
+    updateSnakeHead(getCenterOfGrid(gridSize));
   }
 
   // controls
@@ -176,8 +149,8 @@ const Snake = () => {
   // handle grid data updates
   const drawGrid = () => {
     const newGrid = [];
-    for (let row = 0; row < ROWS; row += 1) {
-      for (let col = 0; col < COLUMNS; col += 1) {
+    for (let row = 0; row < gridSize; row += 1) {
+      for (let col = 0; col < gridSize; col += 1) {
         newGrid.push({
           row,
           col,
@@ -193,6 +166,7 @@ const Snake = () => {
   // init game
   useEffect(() => {
     // set start grid
+    FOOD_POSITION = getStartFood(gridSize);
     drawGrid();
     // start listening to controlis
     window.addEventListener('keydown', handleKeys, { passive: false });
@@ -245,22 +219,20 @@ const Snake = () => {
           newTail.push(oldPos);
         } else newTail.push(SNAKE_TAIL[SNAKE_TAIL.length - 1]);
         // set new food position
-        let newFoodPosition = getRandomGrid();
+        let newFoodPosition = getRandomGrid(gridSize);
         while ((checkTailIntersection(newFoodPosition, newTail)
         || (newFoodPosition.col === newPos.col && newFoodPosition.row === newPos.row))
-        && newTail.length + 1 !== COLUMNS * ROWS) newFoodPosition = getRandomGrid();
+        && newTail.length + 1 !== gridSize * gridSize) newFoodPosition = getRandomGrid(gridSize);
         FOOD_POSITION = newFoodPosition;
-        // increment socore
-        SCORE = SCORE += 1;
         PRAY = getAnimal();
       }
 
       SNAKE_TAIL = newTail;
 
       // check if game is lost
-      const outOfBounds = () => (newPos.col > COLUMNS - 1
+      const outOfBounds = () => (newPos.col > gridSize - 1
         || newPos.col < 0
-        || newPos.row > ROWS - 1
+        || newPos.row > gridSize - 1
         || newPos.row < 0);
       if (outOfBounds() || checkTailIntersection(newPos, newTail)) loseGame()
     }
@@ -269,11 +241,11 @@ const Snake = () => {
     const gameTick = () => {
       if (runningRef.current) {
         moveSnake();
-        setTimeout(gameTick , TICK);
+        setTimeout(gameTick , tick);
       }
     };
 
-    if (gameRunning) setTimeout(gameTick, TICK);
+    if (gameRunning) setTimeout(gameTick, tick);
     return () => {
       clearTimeout(gameTick);
     };
@@ -303,20 +275,22 @@ const Snake = () => {
         <Button onClick={handleClick}>
           {gameRunning ? 'PAUSE' : 'START'}
         </Button>
-        <Score>{scoreRef.current}</Score>
+        <Score>{SNAKE_TAIL.length}</Score>
       </Controls>
       <Grid
         gamelost={gameLost}
-        victory={SNAKE_TAIL.length + 1 === COLUMNS * ROWS}
+        gridSide={gridSide}
+        victory={SNAKE_TAIL.length + 1 === gridSize * gridSize}
       >
         {grid.map(item =>
           <GridItem
+            gridItemSide={gridItemSide}
             key={item.row.toString() + '-' + item.col.toString()}
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
-            victory={SNAKE_TAIL.length + 1 === COLUMNS * ROWS}
+            victory={SNAKE_TAIL.length + 1 === gridSize * gridSize}
           >
-            {item.isFood && (SNAKE_TAIL.length + 1 === COLUMNS * ROWS ? '🎉' : PRAY)}
+            {item.isFood && (SNAKE_TAIL.length + 1 === gridSize * gridSize ? '🎉' : PRAY)}
           </GridItem>)}
       </Grid>
       <MobileControls>

@@ -22,4 +22,7 @@ export const Score = styled.div`
   font-family: 'Nova Slim', cursive;
   font-size: 52px;
   text-align: center;
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
 `;

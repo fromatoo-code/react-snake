@@ -7,15 +7,6 @@ import { Button, Container, Controls, Score } from './SharedComponents';
 import { getNewDirection } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, COLOURS } from '../utils/variables';
 
-const WIDTH = 500;
-const HEIGHT = 500;
-const PIXELS_X = 10;
-const PIXELS_Y = 10;
-const PIXEL_WIDTH = WIDTH / PIXELS_X;
-const PIXEL_HEIGHT = HEIGHT / PIXELS_Y;
-const SCREEN_SIzE = PIXELS_X * PIXELS_Y;
-
-const TICK = 250;
 let SCORE = 0;
 
 // startic vars
@@ -25,8 +16,8 @@ let FOODPOSITION;
 const Canvas = styled.canvas`
   background-color: ${COLOURS.background};
   outline: 3px solid gray;
-  width: ${WIDTH};
-  height: ${HEIGHT};
+  width: ${props => props.gridSideWithUnit};
+  height: ${props => props.gridSideWithUnit};
   margin: auto;
 `;
 
@@ -37,30 +28,36 @@ const handleKeys = (keyPress) => {
   DIRECTION = newDirection;
 }
 
-const getCenterSquare = () => ({
-  x: Math.floor((PIXELS_X - 1) / 2) * PIXEL_WIDTH,
-  y: Math.floor((PIXELS_Y - 1) / 2) * PIXEL_HEIGHT,
+const getCenterSquare = (gridSize, gridItemSide) => ({
+  x: Math.floor((gridSize - 1) / 2) * gridItemSide,
+  y: Math.floor((gridSize - 1) / 2) * gridItemSide,
 })
 
-const getRandomPosition = () => ({
-  x: (Math.floor(Math.random() * PIXELS_X) * PIXEL_WIDTH),
-  y: (Math.floor(Math.random() * PIXELS_Y) * PIXEL_HEIGHT),
+const getRandomPosition = (gridSize, gridItemSide) => ({
+  x: (Math.floor(Math.random() * gridSize) * gridItemSide),
+  y: (Math.floor(Math.random() * gridSize) * gridItemSide),
 })
 
 const checkTailIntersection = (block, tail) => (
   tail.findIndex(segment => segment.x === block.x && segment.y === block.y) !== -1);
 
-const setFoodPosition = (snake) => {
-  const newFoodPosition = getRandomPosition();
+const setFoodPosition = (snake, gridSize, gridItemSide) => {
+  const newFoodPosition = getRandomPosition(gridSize, gridItemSide);
   const takenPositons = snake;
   if (FOODPOSITION) takenPositons.push(FOODPOSITION);
-  if (checkTailIntersection(newFoodPosition, takenPositons)) return setFoodPosition(snake);
+  if (checkTailIntersection(newFoodPosition, takenPositons)) return setFoodPosition(snake, gridSize, gridItemSide);
   return newFoodPosition;
 }
 
-const Snake = () => {
+const Snake = ({
+  gridSide,
+  gridSideWithUnit,
+  gridItemSide,
+  gridSize,
+  tick,
+}) => {
   const [gameCanvas, setCanvas] = useState(null);
-  const [snake, updateSnake] = useState([getCenterSquare()]);
+  const [snake, updateSnake] = useState([getCenterSquare(gridSize, gridItemSide)]);
   const [gameRunning, changeGameRunning] = useState(false);
   const [gameLost, changeGameLost] = useState(false);
   const runningRef = useRef(gameRunning);
@@ -81,8 +78,8 @@ const Snake = () => {
   const reset = () => {
     DIRECTION = RIGHT;
     SCORE = 0;
-    let resetSnake = [getCenterSquare()];
-    FOODPOSITION = setFoodPosition(resetSnake);
+    let resetSnake = [getCenterSquare(gridSize, gridItemSide)];
+    FOODPOSITION = setFoodPosition(resetSnake, gridSize, gridItemSide);
     if (gameCanvas) {
       const ctx = gameCanvas.getContext("2d");
       ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
@@ -96,7 +93,7 @@ const Snake = () => {
     setCanvas(document.getElementById("snakeCanvas"));
     // add controls listener
     window.addEventListener('keydown', handleKeys, { passive: false });
-    FOODPOSITION = setFoodPosition(snakeRef.current);
+    FOODPOSITION = setFoodPosition(snakeRef.current, gridSize, gridItemSide);
     return () => {
       window.removeEventListener('keydown', handleKeys);
       runningRef.current = false;
@@ -116,8 +113,8 @@ const Snake = () => {
 
       const drawSnakePart = (snakePart, isHead) => {
         ctx.fillStyle = isHead ? COLOURS.snakeHead : COLOURS.snakeTail;
-        ctx.fillRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
-        ctx.strokeRect(snakePart.x, snakePart.y, PIXEL_WIDTH, PIXEL_HEIGHT);
+        ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+        ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
       }
 
       const drawSnake = () => {
@@ -129,8 +126,8 @@ const Snake = () => {
 
       const drawFood = () => {
         ctx.fillStyle = COLOURS.food;
-        ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
-        ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, PIXEL_WIDTH, PIXEL_HEIGHT);
+        ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
+        ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
       }
 
       const drawLossBackGround = () => {
@@ -150,16 +147,16 @@ const Snake = () => {
         let newSnakeHead;
         switch (DIRECTION) {
           case LEFT:
-            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x - PIXEL_WIDTH };
+            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x - gridItemSide };
             break;
           case UP:
-            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y - PIXEL_HEIGHT };
+            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y - gridItemSide };
             break;
           case DOWN:
-            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y + PIXEL_HEIGHT };
+            newSnakeHead = { ...oldSnakeHead, y: oldSnakeHead.y + gridItemSide };
             break;
           default:
-            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x + PIXEL_WIDTH };
+            newSnakeHead = { ...oldSnakeHead, x: oldSnakeHead.x + gridItemSide };
         }
         newSnake.push(newSnakeHead)
 
@@ -168,13 +165,13 @@ const Snake = () => {
         const snakeEats = newSnakeHead.x === FOODPOSITION.x && newSnakeHead.y === FOODPOSITION.y;
         if (snakeEats) {
           newSnake.push(oldSnake[oldSnake.length - 1]);
-          if (newSnake.length !== SCREEN_SIzE ) FOODPOSITION = setFoodPosition(oldSnake);
+          if (newSnake.length !== gridSize * gridSize ) FOODPOSITION = setFoodPosition(oldSnake, gridSize, gridItemSide);
           SCORE += 1;
         }
         updateSnake(newSnake);
-        const isOutOfBounds = () => (newSnakeHead.x >= WIDTH
+        const isOutOfBounds = () => (newSnakeHead.x >= gridSide
           || newSnakeHead.x < 0
-          || newSnakeHead.y >= HEIGHT
+          || newSnakeHead.y >= gridSide
           || newSnakeHead.y < 0);
         if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1))) loseGame();
       }
@@ -187,14 +184,14 @@ const Snake = () => {
           if (gameLostRef.current) drawLossBackGround();
           drawFood();
           drawSnake();
-          if (snakeRef.current.length === SCREEN_SIzE) drawVictoryGround();
-          setTimeout(gameTick , TICK);
+          if (snakeRef.current.length === gridSize * gridSize) drawVictoryGround();
+          setTimeout(gameTick , tick);
         }
       };
       drawSnake();
       drawFood();
 
-      if (gameRunning) setTimeout(gameTick, TICK);
+      if (gameRunning) setTimeout(gameTick, tick);
       return () => clearTimeout(gameTick);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,7 +210,7 @@ const Snake = () => {
         </Button>
         <Score>{scoreRef.current}</Score>
       </Controls>
-      <Canvas id="snakeCanvas" height={`${HEIGHT}px`} width={`${WIDTH}px`} />
+      <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} />
     </Container>
   )
 }
