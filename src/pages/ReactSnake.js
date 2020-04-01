@@ -5,12 +5,16 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, animals, COLOURS } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, preyable, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
+import { loadFromLocalStorage } from '../utils/storageUtils';
 
 const HEAD_ROUNDNESS = '70px';
 
-const getAnimal = () => animals[Math.floor(Math.random() * (animals.length - 1))];
+const getAnimal = () => {
+  const pray = preyable[loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY)];
+  return pray[Math.floor(Math.random() * (pray.length - 1))]
+};
 
 const getDirection = () => {
   let borderRadius = 'border-radius: ';
@@ -75,8 +79,8 @@ const GridItem = styled.div`
   text-align: center;
   line-height: ${props => props.gridItemSide};
   font-size: ${props => `calc(${props.gridItemSide} * 0.7)`};
-  ${props => props.snakehead && `background-color: ${COLOURS.snakeHead};`}
-  ${props => props.snaketail && `background-color: ${COLOURS.snakeTail};`}
+  ${props => props.snakehead && `background-color: ${loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)};`}
+  ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
   ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
   ${props => props.snakehead && getDirection()};
 `;
@@ -143,6 +147,7 @@ const Snake = () => {
     drawGrid();
     // start listening to controlis
     window.addEventListener('keydown', handleKeys, { passive: false });
+    PRAY = getAnimal();
 
     return () => {
       window.removeEventListener('keydown', handleKeys);

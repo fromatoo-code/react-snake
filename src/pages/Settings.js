@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { LOCAL_SPEED, LOCAL_GRID, DEFAULT_SPEED, DEFAULT_GRID } from '../utils/variables';
+import { SliderPicker } from 'react-color'
+
+import {
+  LOCAL_SPEED,
+  DEFAULT_GRID,
+  LOCAL_GRID,
+  DEFAULT_SPEED,
+  COLOURS,
+  LOCAL_HEAD_COLOR,
+  LOCAL_TAIL_COLOR,
+  LOCAL_PRAY,
+  DEFAULT_PRAY,
+  ANIMALS,
+  FOOD,
+  PEOPLE,
+ } from '../utils/variables';
 import { addToLocalStorage, loadFromLocalStorage } from '../utils/storageUtils';
 
 const SettingsContainer = styled.div`
@@ -13,6 +28,7 @@ const Setting = styled.div`
   margin: auto;
   flex-direction: row;
   display: flex;
+  margin-bottom: 20px;
   & > div {
     margin: 5px;
   }
@@ -21,7 +37,7 @@ const Setting = styled.div`
 const Name = styled.div`
   font-family: 'Nova Slim', cursive;
   width: 150px;
-  text-align: right;
+  text-align: ${props => (props.center ? 'center' : 'right')};
 `;
 
 const Selection = styled.div`
@@ -31,9 +47,9 @@ const Selection = styled.div`
 `;
 
 const Button = styled.button`
+  font-family: 'Nova Slim', cursive;
   position: relative;
-  bottom: 8px;
-  left: 10px;
+  bottom: 3px;
 `;
 
 export default () => {
@@ -42,6 +58,9 @@ export default () => {
 
   const [speed, changeSpeed] = useState(loadFromLocalStorage(LOCAL_SPEED, DEFAULT_SPEED));
   const [grid, changeGrid] = useState(loadFromLocalStorage(LOCAL_GRID, DEFAULT_GRID));
+  const [pray, changePray] = useState(loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY));
+  const [headColor, changeHeadColor] = useState(loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead));
+  const [tailColor, changeTailColor] = useState(loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail));
 
   const updateSpeed = (sp) => {
     addToLocalStorage(sp, LOCAL_SPEED);
@@ -51,6 +70,21 @@ export default () => {
   const updateGrid = (gr) => {
     addToLocalStorage(gr, LOCAL_GRID);
     changeGrid(gr);
+  }
+
+  const updatePray = (pr) => {
+    addToLocalStorage(pr, LOCAL_PRAY);
+    changePray(pr);
+  }
+
+  const updateHeadColor = (hc) => {
+    addToLocalStorage(hc, LOCAL_HEAD_COLOR);
+    changeHeadColor(hc);
+  }
+
+  const updateTailColor = (tc) => {
+    addToLocalStorage(tc, LOCAL_TAIL_COLOR);
+    changeTailColor(tc);
   }
 
   return (
@@ -70,6 +104,48 @@ export default () => {
             {numbers.slice(2, 20).map(nr => <option key={nr}>{nr}</option>)}
           </select>
         </Selection>
+      </Setting>
+      <Setting>
+        <Name>PRAY</Name>
+        <Selection>
+          <select onChange={(e) => updatePray(e.target.value)} value={pray}>
+            <option>{ANIMALS}</option>
+            <option>{FOOD}</option>
+            <option>{PEOPLE}</option>
+          </select>
+        </Selection>
+      </Setting>
+      <Setting>
+        <Name>SNAKE HEAD</Name>
+        <Selection>
+          <Button onClick={() => updateHeadColor(COLOURS.snakeHead)}>
+            RESET
+          </Button>
+        </Selection>
+      </Setting>
+      <Setting>
+        <div style={{ width: '300px' }}>
+          <SliderPicker
+            color={headColor}
+            onChangeComplete={color => updateHeadColor(color.hex)}
+          />
+        </div>
+      </Setting>
+      <Setting>
+        <Name>SNAKE TAIL</Name>
+        <Selection>
+          <Button onClick={() => updateTailColor(COLOURS.snakeTail)}>
+            RESET
+          </Button>
+        </Selection>
+      </Setting>
+      <Setting>
+        <div style={{ width: '300px' }}>
+          <SliderPicker
+            color={tailColor}
+            onChangeComplete={color => updateTailColor(color.hex)}
+          />
+        </div>
       </Setting>
     </SettingsContainer>
   )

@@ -5,8 +5,9 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, COLOURS } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
+import { loadFromLocalStorage } from '../utils/storageUtils';
 
 let SCORE = 0;
 
@@ -108,7 +109,9 @@ const Snake = () => {
       ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
 
       const drawSnakePart = (snakePart, isHead) => {
-        ctx.fillStyle = isHead ? COLOURS.snakeHead : COLOURS.snakeTail;
+        ctx.fillStyle = isHead
+          ? loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)
+          : loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail);
         ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
         ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
       }
