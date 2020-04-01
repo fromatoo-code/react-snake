@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
-import { getNewDirection } from '../utils/functions';
+import { getNewDirection, checkNoReverse } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, animals, COLOURS } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 
@@ -81,14 +81,6 @@ const GridItem = styled.div`
   ${props => props.snakehead && getDirection()};
 `;
 
-const checkNoReverse = (newDir, oldDir, length) => {
-  if (length === 0) return false;
-  if ((newDir === LEFT && oldDir === RIGHT)
-    || (newDir === RIGHT && oldDir === LEFT)
-    || (newDir === UP && oldDir === DOWN)
-    || (newDir === DOWN && oldDir === UP)) return true
-}
-
 const checkTailIntersection = (block, tail) => (
   tail.findIndex(segment => segment.col === block.col && segment.row === block.row) !== -1);
 
@@ -119,8 +111,8 @@ const Snake = () => {
   const handleKeys = (keyPress) => {
     const { key } = keyPress;
     const newDirection = getNewDirection(key);
-    if (checkNoReverse(newDirection, DIRECTION, SNAKE_TAIL.length)) loseGame();
-    DIRECTION = newDirection;
+    if (!checkNoReverse(newDirection, DIRECTION, SNAKE_TAIL.length)) DIRECTION = newDirection;
+
   }
 
   const mobileConroller = (dir) => {

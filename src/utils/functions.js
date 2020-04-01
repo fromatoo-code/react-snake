@@ -24,3 +24,11 @@ export const getNewDirection = (key) => {
   }
   return newDirection;
 };
+
+export const checkNoReverse = (newDir, oldDir, length) => {
+  if (length === 0) return false;
+  if ((newDir === LEFT && oldDir === RIGHT)
+    || (newDir === RIGHT && oldDir === LEFT)
+    || (newDir === UP && oldDir === DOWN)
+    || (newDir === DOWN && oldDir === UP)) return true
+}

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
-import { getNewDirection } from '../utils/functions';
+import { getNewDirection, checkNoReverse } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, COLOURS } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 
@@ -21,13 +21,6 @@ const Canvas = styled.canvas`
   height: ${props => props.gridSideWithUnit};
   margin: auto;
 `;
-
-// controls
-const handleKeys = (keyPress) => {
-  const { key } = keyPress;
-  const newDirection = getNewDirection(key);
-  DIRECTION = newDirection;
-}
 
 const getCenterSquare = (gridSize, gridItemSide) => ({
   x: Math.floor((gridSize - 1) / 2) * gridItemSide,
@@ -65,6 +58,14 @@ const Snake = () => {
   snakeRef.current = scoreRef.current === 0 ? [snake[0]] : snake;
   const gameLostRef = useRef(gameLost);
   gameLostRef.current = gameLost;
+
+  // controls
+  const handleKeys = (keyPress) => {
+    const { key } = keyPress;
+    const newDirection = getNewDirection(key);
+    console.log(newDirection, DIRECTION, snakeRef.current.slice(1).length);
+    if (!checkNoReverse(newDirection, DIRECTION, snakeRef.current.slice(1).length)) DIRECTION = newDirection;
+  }
 
   const loseGame = () => {
     changeGameRunning(false);
