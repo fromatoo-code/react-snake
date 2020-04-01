@@ -5,11 +5,17 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
 
+const getAnimal = () => {
+  const pray = preyable[loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY)];
+  return pray[Math.floor(Math.random() * (pray.length - 1))]
+};
+
 let SCORE = 0;
+let PRAY = getAnimal();
 
 // startic vars
 let DIRECTION = RIGHT;
@@ -91,6 +97,7 @@ const Snake = () => {
     // add controls listener
     window.addEventListener('keydown', handleKeys, { passive: false });
     FOODPOSITION = setFoodPosition(snakeRef.current, gridSize, gridItemSide);
+    PRAY = getAnimal();
     return () => {
       window.removeEventListener('keydown', handleKeys);
       runningRef.current = false;
@@ -125,8 +132,10 @@ const Snake = () => {
 
       const drawFood = () => {
         ctx.fillStyle = COLOURS.food;
-        ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
-        ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
+        ctx.font = `${gridItemSide * 0.7}px Arial`;
+        ctx.fillText(PRAY, FOODPOSITION.x, FOODPOSITION.y + (gridItemSide * 0.8));
+        // ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
+        // ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
       }
 
       const drawLossBackGround = () => {
@@ -165,6 +174,7 @@ const Snake = () => {
           && Math.round(newSnakeHead.y, gridSize) === Math.round(FOODPOSITION.y, gridSize);
         if (snakeEats) {
           newSnake.push(oldSnake[oldSnake.length - 1]);
+          PRAY = getAnimal();
           if (newSnake.length !== gridSize * gridSize ) FOODPOSITION = setFoodPosition(oldSnake, gridSize, gridItemSide);
           SCORE += 1;
         }
