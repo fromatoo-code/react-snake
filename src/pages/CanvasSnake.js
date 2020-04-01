@@ -32,14 +32,14 @@ const getRandomPosition = (gridSize, gridItemSide) => ({
   y: (Math.floor(Math.random() * gridSize) * gridItemSide),
 })
 
-const checkTailIntersection = (block, tail) => (
-  tail.findIndex(segment => segment.x === block.x && segment.y === block.y) !== -1);
+const checkTailIntersection = (block, tail, gridSize) => (
+  tail.findIndex(segment => Math.round(segment.x, gridSize) === Math.round(block.x, gridSize) && Math.round(segment.y, gridSize) === Math.round(block.y, gridSize)) !== -1);
 
 const setFoodPosition = (snake, gridSize, gridItemSide) => {
   const newFoodPosition = getRandomPosition(gridSize, gridItemSide);
   const takenPositons = snake;
   if (FOODPOSITION) takenPositons.push(FOODPOSITION);
-  if (checkTailIntersection(newFoodPosition, takenPositons)) return setFoodPosition(snake, gridSize, gridItemSide);
+  if (checkTailIntersection(newFoodPosition, takenPositons, gridSize)) return setFoodPosition(snake, gridSize, gridItemSide);
   return newFoodPosition;
 }
 
@@ -170,7 +170,7 @@ const Snake = () => {
           || newSnakeHead.x < 0
           || newSnakeHead.y >= gridSide
           || newSnakeHead.y < 0);
-        if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1))) loseGame();
+        if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1), gridSize)) loseGame();
       }
 
       // game tick
