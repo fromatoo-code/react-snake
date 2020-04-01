@@ -3,9 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Container, Controls, Score } from './SharedComponents';
+import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, COLOURS } from '../utils/variables';
+import { useGameBoard } from '../utils/hooks';
 
 let SCORE = 0;
 
@@ -49,13 +50,8 @@ const setFoodPosition = (snake, gridSize, gridItemSide) => {
   return newFoodPosition;
 }
 
-const Snake = ({
-  gridSide,
-  gridSideWithUnit,
-  gridItemSide,
-  gridSize,
-  tick,
-}) => {
+const Snake = () => {
+  const { gridSide, gridSideWithUnit, gridItemSide, gridSize, tick } = useGameBoard();
   const [gameCanvas, setCanvas] = useState(null);
   const [snake, updateSnake] = useState([getCenterSquare(gridSize, gridItemSide)]);
   const [gameRunning, changeGameRunning] = useState(false);
@@ -211,6 +207,7 @@ const Snake = ({
         <Score>{scoreRef.current}</Score>
       </Controls>
       <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} />
+      <MobileControls mobileConroller={dir => DIRECTION = dir} />
     </Container>
   )
 }

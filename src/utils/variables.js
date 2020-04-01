@@ -1,8 +1,12 @@
-//conrols
+// conrols
 export const RIGHT = 'right';
 export const LEFT = 'left';
 export const UP = 'up';
 export const DOWN = 'down';
+
+// storageKeys
+export const LOCAL_SPEED = 'speed';
+export const LOCAL_GRID = 'grid';
 
 // colors
 export const COLOURS = {

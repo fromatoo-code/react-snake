@@ -3,9 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Container, Controls, Score } from './SharedComponents';
+import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, animals, COLOURS } from '../utils/variables';
+import { useGameBoard } from '../utils/hooks';
 
 const HEAD_ROUNDNESS = '70px';
 
@@ -44,7 +45,7 @@ const getCenterOfGrid = (gridSize) => ({
 
 const getStartFood = (gridSize) => {
   let startFoodPosition = getRandomGrid(gridSize);
-  if (startFoodPosition.col === getCenterOfGrid().col && startFoodPosition.row === getCenterOfGrid(gridSize).row) {
+  if (startFoodPosition.col === getCenterOfGrid(gridSize).col && startFoodPosition.row === getCenterOfGrid(gridSize).row) {
     return getStartFood(gridSize);
   };
   return startFoodPosition;
@@ -80,27 +81,6 @@ const GridItem = styled.div`
   ${props => props.snakehead && getDirection()};
 `;
 
-const MobileControls = styled.div`
-  display: none;
-
-  @media (max-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-  }
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 90vw;
-  justify-content: ${props => (props.spaced ? 'space-between' : 'center')};
-`;
-
-const ControlButon = styled.button`
-  padding: 10px 30px;
-`;
-
 const checkNoReverse = (newDir, oldDir, length) => {
   if (length === 0) return false;
   if ((newDir === LEFT && oldDir === RIGHT)
@@ -112,8 +92,9 @@ const checkNoReverse = (newDir, oldDir, length) => {
 const checkTailIntersection = (block, tail) => (
   tail.findIndex(segment => segment.col === block.col && segment.row === block.row) !== -1);
 
-const Snake = ({ gridItemSide, gridSide, gridSize, tick }) => {
+const Snake = () => {
   // keep track of grid and snake head
+  const { gridItemSideWithUnit, gridSideWithUnit, gridSize, tick } = useGameBoard();
   const [grid, updateGrid] = useState([]);
   const [snakeHead, updateSnakeHead] = useState(getCenterOfGrid(gridSize));
   const [gameRunning, changeGameRunning] = useState(false);
@@ -279,12 +260,12 @@ const Snake = ({ gridItemSide, gridSide, gridSize, tick }) => {
       </Controls>
       <Grid
         gamelost={gameLost}
-        gridSide={gridSide}
+        gridSide={gridSideWithUnit}
         victory={SNAKE_TAIL.length + 1 === gridSize * gridSize}
       >
         {grid.map(item =>
           <GridItem
-            gridItemSide={gridItemSide}
+            gridItemSide={gridItemSideWithUnit}
             key={item.row.toString() + '-' + item.col.toString()}
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
@@ -293,18 +274,7 @@ const Snake = ({ gridItemSide, gridSide, gridSize, tick }) => {
             {item.isFood && (SNAKE_TAIL.length + 1 === gridSize * gridSize ? '🎉' : PRAY)}
           </GridItem>)}
       </Grid>
-      <MobileControls>
-        <Row>
-          <ControlButon onClick={() => mobileConroller(UP)}>⬆</ControlButon>
-        </Row>
-        <Row spaced>
-          <ControlButon onClick={() => mobileConroller(LEFT)}>⬅</ControlButon>
-          <ControlButon onClick={() => mobileConroller(RIGHT)}>➡</ControlButon>
-        </Row>
-        <Row>
-          <ControlButon onClick={() => mobileConroller(DOWN)}>⬇</ControlButon>
-        </Row>
-      </MobileControls>
+      <MobileControls mobileConroller={mobileConroller} />
     </Container>
   );
 }
