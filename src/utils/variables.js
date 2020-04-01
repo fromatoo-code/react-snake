@@ -7,6 +7,8 @@ export const DOWN = 'down';
 // storageKeys
 export const LOCAL_SPEED = 'speed';
 export const LOCAL_GRID = 'grid';
+export const DEFAULT_SPEED = '3';
+export const DEFAULT_GRID = '10';
 
 // colors
 export const COLOURS = {

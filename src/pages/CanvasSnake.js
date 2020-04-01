@@ -63,7 +63,6 @@ const Snake = () => {
   const handleKeys = (keyPress) => {
     const { key } = keyPress;
     const newDirection = getNewDirection(key);
-    console.log(newDirection, DIRECTION, snakeRef.current.slice(1).length);
     if (!checkNoReverse(newDirection, DIRECTION, snakeRef.current.slice(1).length)) DIRECTION = newDirection;
   }
 
@@ -159,7 +158,8 @@ const Snake = () => {
 
         if (oldSnake.length > 1) for (let i = 1; i < oldSnake.length; i += 1) newSnake.push(oldSnake[(i - 1)]);
 
-        const snakeEats = newSnakeHead.x === FOODPOSITION.x && newSnakeHead.y === FOODPOSITION.y;
+        const snakeEats = Math.round(newSnakeHead.x, gridSize) === Math.round(FOODPOSITION.x, gridSize)
+          && Math.round(newSnakeHead.y, gridSize) === Math.round(FOODPOSITION.y, gridSize);
         if (snakeEats) {
           newSnake.push(oldSnake[oldSnake.length - 1]);
           if (newSnake.length !== gridSize * gridSize ) FOODPOSITION = setFoodPosition(oldSnake, gridSize, gridItemSide);
