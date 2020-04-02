@@ -83,6 +83,11 @@ const GridItem = styled.div`
   font-size: ${props => `calc(${props.gridItemSide} * 0.7)`};
   ${props => props.snakehead && `background-color: ${loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)};`}
   ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
+  ${props =>
+    (props.snakehead || props.snaketail)
+    && !props.victory
+    && 'box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 1);'}
+  ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
   ${props => props.victory && 'background-color: rgba(0, 0, 0, 0);'}
   ${props => props.snakehead && getDirection()};
 `;
