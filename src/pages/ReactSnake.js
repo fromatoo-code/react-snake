@@ -90,7 +90,7 @@ const GridItem = styled.div`
   ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
   ${props => props.victory && 'background-color: rgba(0, 0, 0, 0);'}
   ${props => props.snakehead && getDirection()};
-  ${loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) && 'border-radius: 50%'};
+  ${props => props.round && 'border-radius: 50%'};
 `;
 
 const checkTailIntersection = (block, tail) => (
@@ -283,6 +283,7 @@ const Snake = () => {
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
             victory={gameWon}
+            round={loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE)}
           >
             {item.isFood && !gameWon && PRAY}
           </GridItem>)}
