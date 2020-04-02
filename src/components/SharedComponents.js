@@ -20,6 +20,8 @@ export const Container = styled.div`
 
 export const Controls = styled.div`
   margin: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Score = styled.div`

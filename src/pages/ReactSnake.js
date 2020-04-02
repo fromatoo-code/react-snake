@@ -85,8 +85,52 @@ const GridItem = styled.div`
   ${props => props.snakehead && getDirection()};
 `;
 
+export const Header = styled.div`
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+`;
+
+export const Tops = styled.div`
+  margin: 0 20px;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const Result = styled.span`
+  opacity: ${props => 1 / props.opacity};
+`;
+
 const checkTailIntersection = (block, tail) => (
   tail.findIndex(segment => segment.col === block.col && segment.row === block.row) !== -1);
+
+const topresults = [
+  {
+    name: 'Kristina',
+    result: 90,
+    speed: 2,
+  },
+  {
+    name: 'Kristina',
+    result: 90,
+    speed: 2,
+  },
+  {
+    name: 'Kristina',
+    result: 89,
+    speed: 3,
+  },
+  {
+    name: 'Kristina',
+    result: 78,
+    speed: 3,
+  },
+  {
+    name: 'Kristina',
+    result: 78,
+    speed: 2,
+  },
+];
 
 const Snake = () => {
   // keep track of grid and snake head
@@ -249,12 +293,18 @@ const Snake = () => {
 
   return (
     <Container>
-      <Controls>
-        <Button onClick={handleClick}>
-          {gameRunning ? 'PAUSE' : 'START'}
-        </Button>
-        <Score>{SNAKE_TAIL.length}</Score>
-      </Controls>
+      <Header>
+        <Tops>
+          {topresults.map((res, i) => <Result opacity={i}>{`${res.name} ${res.result} at speed ${res.speed}`}</Result>)}
+        </Tops>
+        <Controls>
+          <Button onClick={handleClick}>
+            {gameRunning ? 'PAUSE' : 'START'}
+          </Button>
+          <Score>{SNAKE_TAIL.length}</Score>
+        </Controls>
+        <Tops>-</Tops>
+      </Header>
       <Grid
         gamelost={gameLost}
         gridSide={gridSideWithUnit}
