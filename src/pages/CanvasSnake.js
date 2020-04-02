@@ -8,6 +8,7 @@ import { getNewDirection, checkNoReverse } from '../utils/functions';
 import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
+import { getBackgroundImage } from '../utils/gettersAndSetters';
 
 const getAnimal = () => {
   const pray = preyable[loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY)];
@@ -23,6 +24,8 @@ let FOODPOSITION;
 
 const Canvas = styled.canvas`
   background-color: ${COLOURS.background};
+  ${props => props.gamewon && `background-image: url(${getBackgroundImage()});`}
+  background-size: contain;
   outline: 3px solid gray;
   width: ${props => props.gridSideWithUnit};
   height: ${props => props.gridSideWithUnit};
@@ -56,6 +59,7 @@ const Snake = () => {
   const [snake, updateSnake] = useState([getCenterSquare(gridSize, gridItemSide)]);
   const [gameRunning, changeGameRunning] = useState(false);
   const [gameLost, changeGameLost] = useState(false);
+  const [gameWon, changeGameWon] = useState(false);
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
   const scoreRef = useRef(SCORE);
@@ -89,6 +93,7 @@ const Snake = () => {
     }
     updateSnake([resetSnake[0]]);
     changeGameLost(false);
+    changeGameWon(false);
   }
 
   useEffect(() => {
@@ -173,8 +178,9 @@ const Snake = () => {
       }
 
       const drawVictoryGround = () => {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+        changeGameRunning(false);
+        changeGameWon(true);
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
       }
 
       const moveSnake = () => {
@@ -237,7 +243,7 @@ const Snake = () => {
   }, [gameCanvas, gameRunning]);
 
   const handleClick = () => {
-    if (gameLostRef.current) reset();
+    if (gameLostRef.current || gameWon) reset();
     changeGameRunning(!gameRunning);
   };
 
@@ -249,7 +255,7 @@ const Snake = () => {
         </Button>
         <Score>{scoreRef.current}</Score>
       </Controls>
-      <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} />
+      <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} gamewon={gameWon} />
       <MobileControls mobileConroller={dir => DIRECTION = dir} />
     </Container>
   )
