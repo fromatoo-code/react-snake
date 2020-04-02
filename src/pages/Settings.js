@@ -16,6 +16,8 @@ import {
   ANIMALS,
   FOOD,
   PEOPLE,
+  LOCAL_SNAKE_SHAPE,
+  DEFAULT_SNAKE_SHAPE,
  } from '../utils/variables';
 import { addToLocalStorage, loadFromLocalStorage } from '../utils/storageUtils';
 
@@ -61,6 +63,7 @@ export default () => {
   const [pray, changePray] = useState(loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY));
   const [headColor, changeHeadColor] = useState(loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead));
   const [tailColor, changeTailColor] = useState(loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail));
+  const [shape, changeSnakeshape] = useState(loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE));
 
   const updateSpeed = (sp) => {
     addToLocalStorage(sp, LOCAL_SPEED);
@@ -75,6 +78,12 @@ export default () => {
   const updatePray = (pr) => {
     addToLocalStorage(pr, LOCAL_PRAY);
     changePray(pr);
+  }
+
+  const updateSnakeShape = (sh) => {
+    const v = sh === 'round';
+    addToLocalStorage(v, LOCAL_SNAKE_SHAPE);
+    changeSnakeshape(v);
   }
 
   const updateHeadColor = (hc) => {
@@ -112,6 +121,15 @@ export default () => {
             <option>{ANIMALS}</option>
             <option>{FOOD}</option>
             <option>{PEOPLE}</option>
+          </select>
+        </Selection>
+      </Setting>
+      <Setting>
+        <Name>SNAKE SHAPE</Name>
+        <Selection>
+          <select onChange={(e) => updateSnakeShape(e.target.value)} value={shape ? 'round' : 'square'}>
+            <option>round</option>
+            <option>square</option>
           </select>
         </Selection>
       </Setting>

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY, LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
 import { getBackgroundImage } from '../utils/gettersAndSetters';
@@ -69,6 +69,8 @@ const Snake = () => {
   snakeRef.current = scoreRef.current === 0 ? [snake[0]] : snake;
   const gameLostRef = useRef(gameLost);
   gameLostRef.current = gameLost;
+  const gameWonRef = useRef(gameWon);
+  gameWonRef.current = gameWon;
 
   // controls
   const handleKeys = (keyPress) => {
@@ -139,16 +141,17 @@ const Snake = () => {
       }
 
       const drawSnakePart = (snakePart, isHead) => {
+        const round = loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE);
         ctx.fillStyle = isHead
           ? loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)
           : loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail);
-        if (isHead) {
+        if (isHead || round) {
           const halfSide = gridItemSide / 2;
           ctx.beginPath();
           ctx.arc(snakePart.x + halfSide, snakePart.y + halfSide, halfSide, 0, 2 * Math.PI);
           ctx.fill();
           // ctx.stroke();
-          if (snakeRef.current.length > 1) {
+          if (snakeRef.current.length > 1 && !round) {
             getDirection(snakePart, halfSide);
           }
         } else {
@@ -214,10 +217,10 @@ const Snake = () => {
           SCORE += 1;
         }
         updateSnake(newSnake);
-        const isOutOfBounds = () => (newSnakeHead.x >= gridSide
-          || newSnakeHead.x < 0
-          || newSnakeHead.y >= gridSide
-          || newSnakeHead.y < 0);
+        const isOutOfBounds = () => (Math.round(newSnakeHead.x, gridSize) >= gridSide
+          || Math.round(newSnakeHead.x, gridSize) < 0
+          || Math.round(newSnakeHead.y, gridSize) >= gridSide
+          || Math.round(newSnakeHead.y, gridSize) < 0);
         if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1), gridSize)) loseGame();
       }
 
@@ -230,7 +233,7 @@ const Snake = () => {
           drawFood();
           drawSnake();
           if (snakeRef.current.length === gridSize * gridSize) drawVictoryGround();
-          setTimeout(gameTick , tick);
+          if (!gameLostRef.current && !gameWonRef.current) setTimeout(gameTick , tick);
         }
       };
       drawSnake();

@@ -14,9 +14,11 @@ export const LOCAL_GRID = 'grid';
 export const LOCAL_HEAD_COLOR = 'localhead';
 export const LOCAL_TAIL_COLOR = 'localtail';
 export const LOCAL_PRAY = 'localpray';
+export const LOCAL_SNAKE_SHAPE = 'socalsnakeshape';
 export const DEFAULT_SPEED = '3';
 export const DEFAULT_GRID = '10';
 export const DEFAULT_PRAY = ANIMALS;
+export const DEFAULT_SNAKE_SHAPE = false;
 
 // colors
 export const COLOURS = {
