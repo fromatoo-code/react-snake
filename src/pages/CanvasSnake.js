@@ -5,9 +5,10 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY, LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
+import { getBackgroundImage } from '../utils/gettersAndSetters';
 
 const getAnimal = () => {
   const pray = preyable[loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY)];
@@ -23,6 +24,8 @@ let FOODPOSITION;
 
 const Canvas = styled.canvas`
   background-color: ${COLOURS.background};
+  ${props => props.gamewon && `background-image: url(${getBackgroundImage()});`}
+  background-size: contain;
   outline: 3px solid gray;
   width: ${props => props.gridSideWithUnit};
   height: ${props => props.gridSideWithUnit};
@@ -56,6 +59,7 @@ const Snake = () => {
   const [snake, updateSnake] = useState([getCenterSquare(gridSize, gridItemSide)]);
   const [gameRunning, changeGameRunning] = useState(false);
   const [gameLost, changeGameLost] = useState(false);
+  const [gameWon, changeGameWon] = useState(false);
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
   const scoreRef = useRef(SCORE);
@@ -65,6 +69,8 @@ const Snake = () => {
   snakeRef.current = scoreRef.current === 0 ? [snake[0]] : snake;
   const gameLostRef = useRef(gameLost);
   gameLostRef.current = gameLost;
+  const gameWonRef = useRef(gameWon);
+  gameWonRef.current = gameWon;
 
   // controls
   const handleKeys = (keyPress) => {
@@ -89,6 +95,7 @@ const Snake = () => {
     }
     updateSnake([resetSnake[0]]);
     changeGameLost(false);
+    changeGameWon(false);
   }
 
   useEffect(() => {
@@ -134,16 +141,17 @@ const Snake = () => {
       }
 
       const drawSnakePart = (snakePart, isHead) => {
+        const round = loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE);
         ctx.fillStyle = isHead
           ? loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)
           : loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail);
-        if (isHead) {
+        if (isHead || round) {
           const halfSide = gridItemSide / 2;
           ctx.beginPath();
           ctx.arc(snakePart.x + halfSide, snakePart.y + halfSide, halfSide, 0, 2 * Math.PI);
           ctx.fill();
           // ctx.stroke();
-          if (snakeRef.current.length > 1) {
+          if (snakeRef.current.length > 1 && !round) {
             getDirection(snakePart, halfSide);
           }
         } else {
@@ -173,8 +181,9 @@ const Snake = () => {
       }
 
       const drawVictoryGround = () => {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+        changeGameRunning(false);
+        changeGameWon(true);
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
       }
 
       const moveSnake = () => {
@@ -208,10 +217,10 @@ const Snake = () => {
           SCORE += 1;
         }
         updateSnake(newSnake);
-        const isOutOfBounds = () => (newSnakeHead.x >= gridSide
-          || newSnakeHead.x < 0
-          || newSnakeHead.y >= gridSide
-          || newSnakeHead.y < 0);
+        const isOutOfBounds = () => (Math.round(newSnakeHead.x, gridSize) >= gridSide
+          || Math.round(newSnakeHead.x, gridSize) < 0
+          || Math.round(newSnakeHead.y, gridSize) >= gridSide
+          || Math.round(newSnakeHead.y, gridSize) < 0);
         if (isOutOfBounds() || checkTailIntersection(newSnakeHead, newSnake.slice(1), gridSize)) loseGame();
       }
 
@@ -224,7 +233,7 @@ const Snake = () => {
           drawFood();
           drawSnake();
           if (snakeRef.current.length === gridSize * gridSize) drawVictoryGround();
-          setTimeout(gameTick , tick);
+          if (!gameLostRef.current && !gameWonRef.current) setTimeout(gameTick , tick);
         }
       };
       drawSnake();
@@ -237,7 +246,7 @@ const Snake = () => {
   }, [gameCanvas, gameRunning]);
 
   const handleClick = () => {
-    if (gameLostRef.current) reset();
+    if (gameLostRef.current || gameWon) reset();
     changeGameRunning(!gameRunning);
   };
 
@@ -249,7 +258,7 @@ const Snake = () => {
         </Button>
         <Score>{scoreRef.current}</Score>
       </Controls>
-      <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} />
+      <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} gamewon={gameWon} />
       <MobileControls mobileConroller={dir => DIRECTION = dir} />
     </Container>
   )

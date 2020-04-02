@@ -5,9 +5,10 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, preyable, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, LOCAL_PRAY, DEFAULT_PRAY } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, preyable, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, LOCAL_PRAY, DEFAULT_PRAY, LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
+import { getBackgroundImage } from '../utils/gettersAndSetters';
 
 const HEAD_ROUNDNESS = '70px';
 
@@ -69,8 +70,9 @@ const Grid = styled.div`
   flex-wrap: wrap;
   outline: 3px solid grey;
   background-color: ${COLOURS.background};
+  background-size: contain;
   ${props => props.gamelost && `background-color: ${COLOURS.backgroundLoss};`}
-  ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
+  ${props => props.victory && `background-image: url(${getBackgroundImage()});`}
 `;
 
 const GridItem = styled.div`
@@ -81,8 +83,14 @@ const GridItem = styled.div`
   font-size: ${props => `calc(${props.gridItemSide} * 0.7)`};
   ${props => props.snakehead && `background-color: ${loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)};`}
   ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
-  ${props => props.victory && `background-color: ${COLOURS.backgroundVictory};`}
+  ${'' /* ${props =>
+    (props.snakehead || props.snaketail)
+    && !props.victory
+    && 'box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 1);'} */}
+  ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
+  ${props => props.victory && 'background-color: rgba(0, 0, 0, 0);'}
   ${props => props.snakehead && getDirection()};
+  ${loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) && 'border-radius: 50%'};
 `;
 
 const checkTailIntersection = (block, tail) => (
@@ -95,9 +103,12 @@ const Snake = () => {
   const [snakeHead, updateSnakeHead] = useState(getCenterOfGrid(gridSize));
   const [gameRunning, changeGameRunning] = useState(false);
   const [gameLost, changeGameLost] = useState(false);
+  const [gameWon, changeGameWon] = useState(false);
   // refs used to keep track of vars and update values within setTimeout
   const runningRef = useRef(gameRunning);
   runningRef.current = gameRunning;
+  const gameWonRef = useRef(gameWon);
+  gameWonRef.current = gameWon;
 
   const loseGame = () => {
     changeGameRunning(false);
@@ -109,6 +120,7 @@ const Snake = () => {
     SNAKE_TAIL = [];
     FOOD_POSITION = getStartFood(gridSize);
     updateSnakeHead(getCenterOfGrid(gridSize));
+    changeGameWon(false);
   }
 
   // controls
@@ -219,7 +231,11 @@ const Snake = () => {
     const gameTick = () => {
       if (runningRef.current) {
         moveSnake();
-        setTimeout(gameTick , tick);
+        if (SNAKE_TAIL.length + 1 === gridSize * gridSize) {
+          changeGameWon(true);
+          changeGameRunning(false);
+        }
+        if (runningRef.current) setTimeout(gameTick , tick);
       }
     };
 
@@ -240,7 +256,7 @@ const Snake = () => {
   // start button
   const handleClick = () => {
     // reset all values on game end
-    if (gameLost) {
+    if (gameLost || gameWon) {
       reset();
       changeGameLost(false);
     };
@@ -258,7 +274,7 @@ const Snake = () => {
       <Grid
         gamelost={gameLost}
         gridSide={gridSideWithUnit}
-        victory={SNAKE_TAIL.length + 1 === gridSize * gridSize}
+        victory={gameWon}
       >
         {grid.map(item =>
           <GridItem
@@ -266,9 +282,9 @@ const Snake = () => {
             key={item.row.toString() + '-' + item.col.toString()}
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
-            victory={SNAKE_TAIL.length + 1 === gridSize * gridSize}
+            victory={gameWon}
           >
-            {item.isFood && (SNAKE_TAIL.length + 1 === gridSize * gridSize ? '🎉' : PRAY)}
+            {item.isFood && !gameWon && PRAY}
           </GridItem>)}
       </Grid>
       <MobileControls mobileConroller={mobileConroller} />
