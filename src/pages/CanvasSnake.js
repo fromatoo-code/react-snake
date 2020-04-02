@@ -115,12 +115,41 @@ const Snake = () => {
       // Draw a "border" around the entire canvas
       ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
 
+      const getDirection = (snakepart, halfSide) => {
+        let headRectangle;
+        switch (DIRECTION) {
+          case UP:
+            headRectangle = ctx.fillRect(snakepart.x, snakepart.y + halfSide, gridItemSide, halfSide);
+            break;
+          case LEFT:
+            headRectangle = ctx.fillRect(snakepart.x + halfSide, snakepart.y, halfSide, gridItemSide);
+            break;
+          case DOWN:
+            headRectangle = ctx.fillRect(snakepart.x, snakepart.y, gridItemSide, halfSide);
+            break;
+          default:
+            headRectangle = ctx.fillRect(snakepart.x, snakepart.y, halfSide, gridItemSide);
+        }
+        return headRectangle;
+      }
+
       const drawSnakePart = (snakePart, isHead) => {
         ctx.fillStyle = isHead
           ? loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)
           : loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail);
-        ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
-        ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+        if (isHead) {
+          const halfSide = gridItemSide / 2;
+          ctx.beginPath();
+          ctx.arc(snakePart.x + halfSide, snakePart.y + halfSide, halfSide, 0, 2 * Math.PI);
+          ctx.fill();
+          // ctx.stroke();
+          if (snakeRef.current.length > 1) {
+            getDirection(snakePart, halfSide);
+          }
+        } else {
+          ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+          // ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+        }
       }
 
       const drawSnake = () => {
