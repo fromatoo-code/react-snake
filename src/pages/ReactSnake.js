@@ -114,7 +114,7 @@ const checkTailIntersection = (block, tail) => (
 
 const Snake = () => {
   // keep track of grid and snake head
-  const { gridItemSideWithUnit, gridSideWithUnit, gridSize, tick } = useGameBoard();
+  const { gridItemSideRoundedWithUnit, gridSideWithUnit, gridSize, tick } = useGameBoard();
   const [grid, updateGrid] = useState([]);
   const [snakeHead, updateSnakeHead] = useState(getCenterOfGrid(gridSize));
   const [gameRunning, changeGameRunning] = useState(false);
@@ -294,7 +294,7 @@ const Snake = () => {
       >
         {grid.map(item =>
           <GridItem
-            gridItemSide={gridItemSideWithUnit}
+            gridItemSide={gridItemSideRoundedWithUnit}
             key={item.row.toString() + '-' + item.col.toString()}
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
