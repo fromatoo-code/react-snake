@@ -23,14 +23,16 @@ export const setHightScore = (score) => {
     const relevantResults = loadFromLocalStorage(key, []);
     const newResults = relevantResults;
     const newResult = { name: user, score, speed };
+    let addedResult = false
     for (let i = 0; i < relevantResults.length; i +=1) {
       if (relevantResults[i].score < score || (relevantResults[i].score === score && relevantResults[i].speed < speed)) {
         newResults.splice(i, 0, newResult);
+        addedResult = true;
         break;
       }
     }
 
-    if (newResults.length === relevantResults.length) newResults.push(newResult);
+    if (!addedResult) newResults.push(newResult);
 
     const finalizedResults = newResults.slice(0, 10);
 
