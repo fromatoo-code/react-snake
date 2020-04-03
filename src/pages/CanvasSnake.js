@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
+import { Container, Header, MobileControls } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
 import {
   UP,
@@ -23,7 +23,7 @@ import {
  } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
-import { getBackgroundImage } from '../utils/gettersAndSetters';
+import { getBackgroundImage, setHightScore } from '../utils/gettersAndSetters';
 
 const getAnimal = () => {
   const pray = preyable[loadFromLocalStorage(LOCAL_PRAY, DEFAULT_PRAY)];
@@ -97,6 +97,7 @@ const Snake = () => {
   const loseGame = () => {
     changeGameRunning(false);
     changeGameLost(true);
+    setHightScore(scoreRef.current);
   }
 
   const reset = () => {
@@ -191,8 +192,6 @@ const Snake = () => {
         ctx.fillStyle = COLOURS.food;
         ctx.font = `${gridItemSide * 0.7}px Arial`;
         ctx.fillText(PRAY, FOODPOSITION.x, FOODPOSITION.y + (gridItemSide * 0.8));
-        // ctx.fillRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
-        // ctx.strokeRect(FOODPOSITION.x, FOODPOSITION.y, gridItemSide, gridItemSide);
       }
 
       const drawLossBackGround = () => {
@@ -203,6 +202,7 @@ const Snake = () => {
       const drawVictoryGround = () => {
         changeGameRunning(false);
         changeGameWon(true);
+        setHightScore(scoreRef.current);
         ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
       }
 
@@ -272,12 +272,7 @@ const Snake = () => {
 
   return (
     <Container>
-      <Controls>
-        <Button onClick={handleClick}>
-          {gameRunning ? 'PAUSE' : 'START'}
-        </Button>
-        <Score>{scoreRef.current}</Score>
-      </Controls>
+      <Header handleClick={handleClick} gameRunning={gameRunning} score={scoreRef.current} />
       <Canvas id="snakeCanvas" height={gridSideWithUnit} width={gridSideWithUnit} gridSideWithUnit={gridSideWithUnit} gamewon={gameWon} />
       <MobileControls mobileConroller={dir => DIRECTION = dir} />
     </Container>

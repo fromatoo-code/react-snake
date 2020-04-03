@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link as ReactLink } from 'react-router-dom';
 
-import { UP, RIGHT, DOWN, LEFT } from '../utils/variables';
+import { UP, RIGHT, DOWN, LEFT, LOOCAL_USERNAME } from '../utils/variables';
+import { loadFromLocalStorage } from '../utils/storageUtils';
 
-export const Button = styled.button`
+const Button = styled.button`
   font-family: 'Nova Slim', cursive;
   font-size: 25px;
 `;
@@ -18,11 +19,14 @@ export const Container = styled.div`
   flex-direction: column;
 `;
 
-export const Controls = styled.div`
+const Controls = styled.div`
   margin: auto;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 `;
 
-export const Score = styled.div`
+const Score = styled.div`
   font-family: 'Nova Slim', cursive;
   font-size: 52px;
   text-align: center;
@@ -45,6 +49,27 @@ const MobileControlsWrapper = styled.div`
     margin-top: 20px;
   }
 `;
+
+const UserNameDisplay = styled(ReactLink)`
+  font-family: 'Nova Slim', cursive;
+  line-height: 40px;
+  font-size: 20px;
+  color: black;
+  text-decoration: none;
+`;
+
+export const Header = ({ handleClick, gameRunning, score }) => {
+  const userName = loadFromLocalStorage(LOOCAL_USERNAME, 'set player');
+  return (
+    <Controls>
+      <Button onClick={handleClick}>
+        {gameRunning ? 'PAUSE' : 'START'}
+      </Button>
+      <UserNameDisplay to="leaderboard">{userName}</UserNameDisplay>
+      <Score>{score}</Score>
+    </Controls>
+  );
+}
 
 const Row = styled.div`
   display: flex;

@@ -29,9 +29,10 @@ function App() {
     <div className="App">
       <GithubCorner href="https://github.com/askokr/react-snake" />
       <SelectionContainer>
-        <LinkWrapper to="/flexsnake"><Selection>FLEX SNAKE</Selection></LinkWrapper>
+        <LinkWrapper to="flexsnake"><Selection>FLEX SNAKE</Selection></LinkWrapper>
         <LinkWrapper to="canvassnake"><Selection>CANVAS SNAKE</Selection></LinkWrapper>
         <LinkWrapper to="settings"><Selection>SETTINGS</Selection></LinkWrapper>
+        <LinkWrapper to="leaderboard"><Selection>LEADERBOARD</Selection></LinkWrapper>
       </SelectionContainer>
     </div>
   );
