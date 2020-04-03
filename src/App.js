@@ -7,6 +7,7 @@ import FlexSnake from './pages/ReactSnake';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Settings from './pages/Settings';
+import Leaderboard from './pages/Leaderboard';
 
 const Title = styled.h1`
   text-align: center;
@@ -27,6 +28,7 @@ function App() {
         <Route path="/canvassnake" component={CanvasSnake} exact />
         <Route path="/flexsnake" component={FlexSnake} exact />
         <Route path="/settings" component={Settings} exact />
+        <Route path="/leaderboard" component={Leaderboard} exact />
         <Route component={NotFound} />
       </Switch>
     </div>

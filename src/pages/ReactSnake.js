@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
+import { Container, Header, MobileControls } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
 import {
   UP,
@@ -23,7 +23,7 @@ import {
  } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
-import { getBackgroundImage } from '../utils/gettersAndSetters';
+import { getBackgroundImage, setHightScore } from '../utils/gettersAndSetters';
 
 const HEAD_ROUNDNESS = '70px';
 
@@ -129,6 +129,7 @@ const Snake = () => {
   const loseGame = () => {
     changeGameRunning(false);
     changeGameLost(true);
+    setHightScore(SNAKE_TAIL.length)
   }
 
   const reset = () => {
@@ -250,6 +251,7 @@ const Snake = () => {
         if (SNAKE_TAIL.length + 1 === gridSize * gridSize) {
           changeGameWon(true);
           changeGameRunning(false);
+          setHightScore(SNAKE_TAIL.length);
         }
         if (runningRef.current) setTimeout(gameTick , tick);
       }
@@ -281,12 +283,7 @@ const Snake = () => {
 
   return (
     <Container>
-      <Controls>
-        <Button onClick={handleClick}>
-          {gameRunning ? 'PAUSE' : 'START'}
-        </Button>
-        <Score>{SNAKE_TAIL.length}</Score>
-      </Controls>
+      <Header handleClick={handleClick} gameRunning={gameRunning} score={SNAKE_TAIL.length} />
       <Grid
         gamelost={gameLost}
         gridSide={gridSideWithUnit}
