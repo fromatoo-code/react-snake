@@ -83,7 +83,7 @@ const Grid = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  outline: 3px solid grey;
+  border: 3px solid grey;
   background-color: ${COLOURS.background};
   background-size: contain;
   ${props => props.gamelost && `background-color: ${COLOURS.backgroundLoss};`}

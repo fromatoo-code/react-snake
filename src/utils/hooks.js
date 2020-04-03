@@ -13,7 +13,7 @@ export const useGameBoard = () => {
   const GRID_SIDE_WITH_UNIT = `${GRID_SIDE}${isMobile ? 'vw' : 'px'}`;
 
   const GRID_SIZE =  loadFromLocalStorage(LOCAL_GRID, DEFAULT_GRID);
-  const GRID_ITEM_SIDE = GRID_SIDE / GRID_SIZE;
+  const GRID_ITEM_SIDE = Math.round(GRID_SIDE / GRID_SIZE, GRID_SIZE);
   const GRID_ITEM_SIDE_WITH_UNIT = `${GRID_ITEM_SIDE}${isMobile ? 'vw' : 'px'}`;
 
   const BASETICK = 1000;
