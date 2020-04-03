@@ -54,18 +54,19 @@ const UserNameDisplay = styled(ReactLink)`
   font-family: 'Nova Slim', cursive;
   line-height: 40px;
   font-size: 20px;
-  color: black;
+  color: ${props => (props.userName ? 'black' : 'gray')};
   text-decoration: none;
 `;
 
 export const Header = ({ handleClick, gameRunning, score }) => {
-  const userName = loadFromLocalStorage(LOOCAL_USERNAME, 'set player');
+  const setPlayer = 'set player';
+  const userName = loadFromLocalStorage(LOOCAL_USERNAME, setPlayer);
   return (
     <Controls>
       <Button onClick={handleClick}>
         {gameRunning ? 'PAUSE' : 'START'}
       </Button>
-      <UserNameDisplay to="leaderboard">{userName}</UserNameDisplay>
+      <UserNameDisplay to="leaderboard" userName={userName !== setPlayer}>{userName}</UserNameDisplay>
       <Score>{score}</Score>
     </Controls>
   );
