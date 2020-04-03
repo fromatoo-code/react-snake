@@ -43,7 +43,7 @@ export default () => {
   return (
     <Wrapper>
       <Input placeholder="username" value={username} onChange={(e) => updateUserName(e.target.value)}></Input>
-      <Intro>{`${username ? `${username}, y`: 'Y'}ou are playing with on a size-${grisSize} grid at speed ${speed}`}</Intro>
+      <Intro>{`${username ? `${username}, y`: 'Y'}ou are playing on a size-${grisSize} grid`}</Intro>
       <Intro>The best results for this grid on this browser are:</Intro>
       {results && results.map((data, i) =>
         <ResultData key={`${i}-${data.name}-${data.score}-${data.speed}`}>
