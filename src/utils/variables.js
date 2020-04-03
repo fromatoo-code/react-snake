@@ -8,6 +8,10 @@ export const ANIMALS = 'animals';
 export const FOOD = 'food';
 export const PEOPLE = 'people';
 
+export const LINE = 'line';
+export const ROUND = 'round';
+export const SQUARE = 'square';
+
 // storageKeys
 export const LOCAL_SPEED = 'speed';
 export const LOCAL_GRID = 'grid';
@@ -18,7 +22,7 @@ export const LOCAL_SNAKE_SHAPE = 'socalsnakeshape';
 export const DEFAULT_SPEED = '3';
 export const DEFAULT_GRID = '10';
 export const DEFAULT_PRAY = ANIMALS;
-export const DEFAULT_SNAKE_SHAPE = false;
+export const DEFAULT_SNAKE_SHAPE = LINE;
 
 // colors
 export const COLOURS = {

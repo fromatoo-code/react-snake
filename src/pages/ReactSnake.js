@@ -5,7 +5,22 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, preyable, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, LOCAL_PRAY, DEFAULT_PRAY, LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE } from '../utils/variables';
+import {
+  UP,
+  RIGHT,
+  DOWN,
+  LEFT,
+  preyable,
+  COLOURS,
+  LOCAL_HEAD_COLOR,
+  LOCAL_TAIL_COLOR,
+  LOCAL_PRAY,
+  DEFAULT_PRAY,
+  LOCAL_SNAKE_SHAPE,
+  DEFAULT_SNAKE_SHAPE,
+  ROUND,
+  SQUARE
+ } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
 import { getBackgroundImage } from '../utils/gettersAndSetters';
@@ -83,13 +98,14 @@ const GridItem = styled.div`
   font-size: ${props => `calc(${props.gridItemSide} * 0.7)`};
   ${props => props.snakehead && `background-color: ${loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)};`}
   ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
-  ${'' /* ${props =>
-    (props.snakehead || props.snaketail)
+  ${props =>
+    props.square
+    && (props.snakehead || props.snaketail)
     && !props.victory
-    && 'box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 1);'} */}
+    && 'box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 1);'}
   ${props => props.snaketail && `background-color: ${loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail)};`}
   ${props => props.victory && 'background-color: rgba(0, 0, 0, 0);'}
-  ${props => props.snakehead && getDirection()};
+  ${props => props.snakehead && !props.square && getDirection()};
   ${props => props.round && 'border-radius: 50%'};
 `;
 
@@ -283,7 +299,8 @@ const Snake = () => {
             snakehead={item.isSnakeHead}
             snaketail={item.isSnakeTail}
             victory={gameWon}
-            round={loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE)}
+            round={loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) === ROUND}
+            square={loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) === SQUARE}
           >
             {item.isFood && !gameWon && PRAY}
           </GridItem>)}

@@ -5,7 +5,22 @@ import styled from 'styled-components';
 
 import { Button, Container, Controls, MobileControls, Score } from '../components/SharedComponents';
 import { getNewDirection, checkNoReverse } from '../utils/functions';
-import { UP, RIGHT, DOWN, LEFT, COLOURS, LOCAL_HEAD_COLOR, LOCAL_TAIL_COLOR, preyable, LOCAL_PRAY, DEFAULT_PRAY, LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE } from '../utils/variables';
+import {
+  UP,
+  RIGHT,
+  DOWN,
+  LEFT,
+  COLOURS,
+  LOCAL_HEAD_COLOR,
+  LOCAL_TAIL_COLOR,
+  preyable,
+  LOCAL_PRAY,
+  DEFAULT_PRAY,
+  LOCAL_SNAKE_SHAPE,
+  DEFAULT_SNAKE_SHAPE,
+  ROUND,
+  SQUARE,
+ } from '../utils/variables';
 import { useGameBoard } from '../utils/hooks';
 import { loadFromLocalStorage } from '../utils/storageUtils';
 import { getBackgroundImage } from '../utils/gettersAndSetters';
@@ -141,22 +156,27 @@ const Snake = () => {
       }
 
       const drawSnakePart = (snakePart, isHead) => {
-        const round = loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE);
+        const round = loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) === ROUND;
+        const square = loadFromLocalStorage(LOCAL_SNAKE_SHAPE, DEFAULT_SNAKE_SHAPE) === SQUARE;
         ctx.fillStyle = isHead
           ? loadFromLocalStorage(LOCAL_HEAD_COLOR, COLOURS.snakeHead)
           : loadFromLocalStorage(LOCAL_TAIL_COLOR, COLOURS.snakeTail);
         if (isHead || round) {
-          const halfSide = gridItemSide / 2;
-          ctx.beginPath();
-          ctx.arc(snakePart.x + halfSide, snakePart.y + halfSide, halfSide, 0, 2 * Math.PI);
-          ctx.fill();
-          // ctx.stroke();
-          if (snakeRef.current.length > 1 && !round) {
-            getDirection(snakePart, halfSide);
+          if (square) {
+            ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+            ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide)
+          } else {
+            const halfSide = gridItemSide / 2;
+            ctx.beginPath();
+            ctx.arc(snakePart.x + halfSide, snakePart.y + halfSide, halfSide, 0, 2 * Math.PI);
+            ctx.fill();
+            if (snakeRef.current.length > 1 && !round) {
+              getDirection(snakePart, halfSide);
+            }
           }
         } else {
           ctx.fillRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
-          // ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
+          if (square) ctx.strokeRect(snakePart.x, snakePart.y, gridItemSide, gridItemSide);
         }
       }
 

@@ -18,6 +18,9 @@ import {
   PEOPLE,
   LOCAL_SNAKE_SHAPE,
   DEFAULT_SNAKE_SHAPE,
+  LINE,
+  ROUND,
+  SQUARE,
  } from '../utils/variables';
 import { addToLocalStorage, loadFromLocalStorage } from '../utils/storageUtils';
 
@@ -81,9 +84,8 @@ export default () => {
   }
 
   const updateSnakeShape = (sh) => {
-    const v = sh === 'round';
-    addToLocalStorage(v, LOCAL_SNAKE_SHAPE);
-    changeSnakeshape(v);
+    addToLocalStorage(sh, LOCAL_SNAKE_SHAPE);
+    changeSnakeshape(sh);
   }
 
   const updateHeadColor = (hc) => {
@@ -127,9 +129,10 @@ export default () => {
       <Setting>
         <Name>SNAKE SHAPE</Name>
         <Selection>
-          <select onChange={(e) => updateSnakeShape(e.target.value)} value={shape ? 'round' : 'square'}>
-            <option>round</option>
-            <option>square</option>
+          <select onChange={(e) => updateSnakeShape(e.target.value)} value={shape}>
+            <option>{LINE}</option>
+            <option>{ROUND}</option>
+            <option>{SQUARE}</option>
           </select>
         </Selection>
       </Setting>
