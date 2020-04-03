@@ -34,12 +34,12 @@ export default () => {
   const [username, setUsername] = useState(loadFromLocalStorage(LOOCAL_USERNAME || ''));
 
   const key = `${LOOCAL_BEST}${grisSize}`;
-  const results = loadFromLocalStorage(key || [])
+  const results = loadFromLocalStorage(key || []);
 
   const updateUserName = (name) =>{
     addToLocalStorage(name, LOOCAL_USERNAME);
     setUsername(name);
-  }
+  };
   return (
     <Wrapper>
       <Input placeholder="username" value={username} onChange={(e) => updateUserName(e.target.value)}></Input>
